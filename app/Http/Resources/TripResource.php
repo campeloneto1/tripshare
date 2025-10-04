@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class TripResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,16 +14,15 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+         return [
             'id' => $this->id,
-            'nome' => $this->nome,
-            'username' => $this->username,
-            'telefone' => $this->telefone,
-            'cpf' => $this->cpf,
-            'email' => $this->email,
-            'email_verified_at' => $this->email_verified_at,
-            'role_id' => $this->role_id,
-            'role' => RoleResource::make($this->whenLoaded('role')),
+            'usuario_criador_id' => $this->user_id,
+            'titulo' => $this->titulo,
+            'descricao' => $this->descricao,
+            'data_inicio' => $this->data_inicio?->format('Y-m-d'),
+            'data_fim' => $this->data_fim?->format('Y-m-d'),
+            'user_id' => $this->user_id,
+            'user' => UserResource::make($this->whenLoaded('user')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,

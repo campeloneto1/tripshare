@@ -3,8 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\PerfilController;
-use App\Http\Controllers\PermissaoController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 // Teste rápido
 Route::get('teste', function () {
@@ -24,10 +24,10 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
     Route::apiResources([
         'users' => UserController::class,
-        'perfis' => PerfilController::class,
-        'permissoes' => PermissaoController::class,
+        'roles' => RoleController::class,
+        'permissions' => PermissionController::class,
     ]);
 
-    Route::post('perfis/{perfil}/permissoes', [PerfilController::class, 'permissoes']);
-    Route::post('perfis/{perfil}/permissoes/sync', [PerfilController::class, 'permissoesSync']);
+    Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);
+    Route::post('roles/{role}/permissions/sync', [RoleController::class, 'syncPermissions']);
 });

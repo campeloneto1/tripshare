@@ -20,11 +20,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nome',
+        'name',
         'email',
         'username',
         'cpf',
-        'telefone',
+        'phone',
         'password',
     ];
 
@@ -46,29 +46,29 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'nome' => 'string',
+            'name' => 'string',
             'email' => 'string',
-            'telefone' => 'string',
+            'phone' => 'string',
             'cpf' => 'string',
             'username' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'perfil_id' => 'integer',
+            'role_id' => 'integer',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];
     }
 
-    protected $with = ['perfil'];
+    protected $with = ['role'];
 
-    public function perfil()
+    public function role()
     {
-        return $this->belongsTo(Perfil::class);
+        return $this->belongsTo(Role::class);
     }
 
-    public function hasPermissao(string $nomePermissao): bool
+    public function hasPermission(string $permissionName): bool
     {
-        return $this->perfil && $this->perfil->permissoes->contains('nome', $nomePermissao);
+        return $this->role && $this->role->permissions->contains('name', $permissionName);
     }
 }

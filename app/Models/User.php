@@ -75,4 +75,10 @@ class User extends Authenticatable
     public function trips(){
         return $this->hasMany(Trip::class)->without('user')->orderBy('id', 'desc');
     }
+    
+    public function tripsParticipating() {
+        return $this->belongsToMany(Trip::class, 'trips_users')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
 }

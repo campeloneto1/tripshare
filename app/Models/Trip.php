@@ -35,6 +35,12 @@ class Trip extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function users() {
+        return $this->belongsToMany(User::class, 'trips_users')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
+
     public function days()
     {
         return $this->hasMany(TripDay::class)->orderBy('date', 'asc');

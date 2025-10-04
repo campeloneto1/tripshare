@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class UpdateTripDayCityRequest extends FormRequest
+class UpdateTripDayCityRequest extends BaseRequest
 {
     
     public function authorize(): bool

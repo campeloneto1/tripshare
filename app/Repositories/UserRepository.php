@@ -29,7 +29,7 @@ class UserRepository
 
     public function allWithTrashed(array $filters)
     {
-         $query = $this->baseQuery();
+         $query = $this->baseQuery()->withTrashed();
 
         if(!empty($filters['search'])){
             $this->filterSearch($query, $filters['search']);

@@ -40,7 +40,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         try {
-            return UserResource::make($user);
+            return $this->service->find($user->id);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

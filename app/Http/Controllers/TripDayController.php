@@ -17,7 +17,7 @@ class TripDayController extends Controller
     /**
      * Lista todos os dias de uma viagem.
      */
-    public function index(Trip $trip): JsonResponse
+    public function index(Trip $trip)
     {
         try {
             $tripDays = $this->service->listByTrip($trip->id);
@@ -30,7 +30,7 @@ class TripDayController extends Controller
     /**
      * Cadastra um novo dia dentro de uma viagem.
      */
-    public function store(StoreTripDayRequest $request, Trip $trip): JsonResponse
+    public function store(StoreTripDayRequest $request, Trip $trip)
     {
         try {
             $data = $request->validated();
@@ -48,7 +48,7 @@ class TripDayController extends Controller
     /**
      * Mostra um dia específico.
      */
-    public function show(Trip $trip, TripDay $tripDay): JsonResponse
+    public function show(Trip $trip, TripDay $tripDay)
     {
         try {
             // opcional: garantir que o dia pertence à viagem
@@ -56,7 +56,7 @@ class TripDayController extends Controller
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
 
-            return response()->json(TripDayResource::make($tripDay));
+            return response()->json(TripDayResource::make($this->service->find($trip->id)));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -65,7 +65,7 @@ class TripDayController extends Controller
     /**
      * Atualiza um dia da viagem.
      */
-    public function update(UpdateTripDayRequest $request, Trip $trip, TripDay $tripDay): JsonResponse
+    public function update(UpdateTripDayRequest $request, Trip $trip, TripDay $tripDay)
     {
         try {
             if ($tripDay->trip_id !== $trip->id) {
@@ -84,7 +84,7 @@ class TripDayController extends Controller
     /**
      * Exclui um dia da viagem.
      */
-    public function destroy(Trip $trip, TripDay $tripDay): JsonResponse
+    public function destroy(Trip $trip, TripDay $tripDay)
     {
         try {
             if ($tripDay->trip_id !== $trip->id) {

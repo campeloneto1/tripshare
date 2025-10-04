@@ -6,6 +6,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
@@ -23,12 +24,30 @@ class UserService
 
     public function find(int $id): ?User
     {
-        return $this->repository->find($id);
+        $loggedId = Auth::id();
+        $user = $this->repository->find($id);
+
+        $user->load(['trips' => function ($query) use ($loggedId, $id) {
+            if ($loggedId !== $id) {
+                $query->where('is_public', true);
+            }
+        }]);
+
+        return $user;
     }
 
     public function findWithTrashed(int $id): ?User
     {
-        return $this->repository->findWithTrashed($id);
+        $loggedId = Auth::id();
+        $user = $this->repository->findWithTrashed($id);
+
+        $user->load(['trips' => function ($query) use ($loggedId, $id) {
+            if ($loggedId !== $id) {
+                $query->where('is_public', true);
+            }
+        }]);
+
+        return $user;
     }
 
     public function store(array $data): User

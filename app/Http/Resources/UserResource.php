@@ -24,6 +24,7 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at,
             'role_id' => $this->role_id,
             'role' => RoleResource::make($this->whenLoaded('role')),
+            'trips' => TripResource::collection($this->whenLoaded('trips')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,

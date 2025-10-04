@@ -71,4 +71,8 @@ class User extends Authenticatable
     {
         return $this->role && $this->role->permissions->contains('name', $permissionName);
     }
+
+    public function trips(){
+        return $this->hasMany(Trip::class)->orderBy('id', 'desc');
+    }
 }

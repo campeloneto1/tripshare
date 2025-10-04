@@ -8,26 +8,29 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     use AuthorizesRequests;
     public function __construct(private UserService $service) {}
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $users = $this->service->list();
+            $filters = $request->only(['limit', 'search']);
+            $users = $this->service->list($filters);
             return UserResource::collection($users);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function indexAll()
+    public function indexAll(Request $request)
     {
         try {
-            $users = $this->service->listAll();
+            $filters = $request->only(['limit', 'search']);
+            $users = $this->service->listAll($filters);
             return UserResource::collection($users);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

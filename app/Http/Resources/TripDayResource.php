@@ -17,6 +17,7 @@ class TripDayResource extends JsonResource
         return [
             'id' => $this->id,
             'trip_id' => $this->trip_id,
+            'trip' => TripResource::make($this->whenLoaded('trip')),
             'date' => $this->date->format('Y-m-d'),
             //'items' => TripItemResource::collection($this->whenLoaded('items')), // lazy load
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),

@@ -15,14 +15,15 @@ class TripService
         private TripDayRepository $tripDayRepository
         ) {}
 
-    public function list()
+    public function list(array $filters)
     {
-        return $this->repository->all()->paginate(10);
+        return $this->repository->all($filters);
     }
 
     public function find(int $id): ?Trip
     {
-        return $this->repository->find($id);
+        $return = $this->repository->find($id);
+        return $return->load(['days']);
     }
 
     public function store(array $data): Trip

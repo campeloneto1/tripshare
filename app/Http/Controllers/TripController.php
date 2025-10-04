@@ -7,16 +7,17 @@ use App\Http\Requests\UpdateTripRequest;
 use App\Http\Resources\TripResource;
 use App\Models\Trip;
 use App\Services\TripService;
+use Illuminate\Http\Request;
 
 class TripController extends Controller
 {
    public function __construct(private TripService $service) {}
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            
-            $trips = $this->service->list();
+            $filters = $request->only(['limit', 'search']);
+            $trips = $this->service->list($filters);
             return TripResource::collection($trips);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

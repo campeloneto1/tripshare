@@ -10,9 +10,9 @@ class PermissionService
 {
     public function __construct(private PermissionRepository $repository) {}
 
-    public function list()
+    public function list(array $filters)
     {
-        return $this->repository->all()->paginate(10);
+        return $this->repository->all($filters);
     }
 
     public function find(int $id): ?Permission

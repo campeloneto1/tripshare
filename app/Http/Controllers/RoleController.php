@@ -9,15 +9,17 @@ use App\Http\Resources\RoleResource;
 use App\Http\Resources\PermissionResource;
 use App\Models\Role;
 use App\Services\RoleService;
+use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
      public function __construct(private RoleService $service) {}
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $roles = $this->service->list();
+            $filters = $request->only(['limit', 'search']);
+            $roles = $this->service->list($filters);
             return RoleResource::collection($roles);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

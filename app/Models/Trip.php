@@ -37,6 +37,6 @@ class Trip extends Model
 
     public function days()
     {
-        return $this->hasMany(TripDay::class);
+        return $this->hasMany(TripDay::class)->orderBy('date', 'asc');
     }
 }

@@ -7,16 +7,17 @@ use App\Http\Requests\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
 use App\Models\Permission;
 use App\Services\PermissionService;
+use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
      public function __construct(private PermissionService $service) {}
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            
-            $permissions = $this->service->list();
+            $filters = $request->only(['limit', 'search']);
+            $permissions = $this->service->list($filters);
             return PermissionResource::collection($permissions);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

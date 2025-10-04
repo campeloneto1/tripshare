@@ -11,14 +11,14 @@ class UserService
 {
     public function __construct(private UserRepository $repository) {}
 
-    public function list()
+    public function list(array $filters)
     {
-        return $this->repository->all()->paginate(10);
+        return $this->repository->all($filters);
     }
 
-    public function listAll()
+    public function listAll(array $filters)
     {
-        return $this->repository->allWithTrashed()->paginate(10);
+        return $this->repository->allWithTrashed($filters);
     }
 
     public function find(int $id): ?User

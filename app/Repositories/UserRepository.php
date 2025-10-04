@@ -3,17 +3,43 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository
 {
-    public function all()
+    public function baseQuery()
     {
-        return User::query(); // só ativos
+        return User::query();
     }
 
-    public function allWithTrashed()
+    public function all(array $filters)
     {
-        return User::withTrashed()->query(); // ativos + soft deleted
+        $query = $this->baseQuery();
+
+        if(!empty($filters['search'])){
+            $this->filterSearch($query, $filters['search']);
+        }
+
+        if(!empty($filters['limit']) && is_numeric($filters['limit'])){
+            return $query->paginate((int)$filters['limit']);
+        }
+
+        return $query->get();
+    }
+
+    public function allWithTrashed(array $filters)
+    {
+         $query = $this->baseQuery();
+
+        if(!empty($filters['search'])){
+            $this->filterSearch($query, $filters['search']);
+        }
+
+        if(!empty($filters['limit']) && is_numeric($filters['limit'])){
+            return $query->paginate((int)$filters['limit']);
+        }
+
+        return $query->get();
     }
 
     public function find(int $id): ?User
@@ -39,7 +65,7 @@ class UserRepository
 
     public function delete(User $user): bool
     {
-        return $user->delete(); // soft delete
+        return $user->delete(); 
     }
 
     public function restore(User $user): bool
@@ -50,5 +76,16 @@ class UserRepository
     public function forceDelete(User $user): bool
     {
         return $user->forceDelete();
+    }
+
+    public function filterSearch(Builder $query, string $search)
+    {
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('cpf', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhere('username', 'like', "%{$search}%");
+        });
     }
 }

@@ -13,7 +13,7 @@ class PermissaoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -21,7 +21,7 @@ class PermissaoPolicy
      */
     public function view(User $user, Permissao $permissao): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -29,7 +29,7 @@ class PermissaoPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -37,7 +37,7 @@ class PermissaoPolicy
      */
     public function update(User $user, Permissao $permissao): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -45,7 +45,7 @@ class PermissaoPolicy
      */
     public function delete(User $user, Permissao $permissao): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -53,7 +53,7 @@ class PermissaoPolicy
      */
     public function restore(User $user, Permissao $permissao): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -61,6 +61,6 @@ class PermissaoPolicy
      */
     public function forceDelete(User $user, Permissao $permissao): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 }

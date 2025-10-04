@@ -15,10 +15,13 @@ class PermissaoSeeder extends Seeder
     {
         // Defina as permissões que você deseja criar
         $permissoes = [
-            ['nome' => 'create_user', 'descricao' => 'Permite criar users'],
-            ['nome' => 'edit_user', 'descricao' => 'Permite editar users'],
-            ['nome' => 'delete_user', 'descricao' => 'Permite deletar users'],
-            ['nome' => 'view_user', 'descricao' => 'Permite visualizar users'],
+            ['nome' => 'administrador', 'descricao' => 'Administrador do sistema'],
+            ['nome' => 'create_usuarios', 'descricao' => 'Permite criar usuários'],
+            ['nome' => 'update_usuarios', 'descricao' => 'Permite editar usuários'],
+            ['nome' => 'delete_usuarios', 'descricao' => 'Permite deletar usuários'],
+            ['nome' => 'list_usuarios', 'descricao' => 'Permite visualizar usuários'],
+            ['nome' => 'restore_usuarios', 'descricao' => 'Permite restaurar usuários'],
+            ['nome' => 'force_delete_usuarios', 'descricao' => 'Permite excluir permanentemente usuários'],
         ];
 
         foreach ($permissoes as $permissao) {

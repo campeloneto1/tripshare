@@ -13,7 +13,7 @@ class PerfilPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -21,7 +21,7 @@ class PerfilPolicy
      */
     public function view(User $user, Perfil $perfil): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -29,7 +29,7 @@ class PerfilPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -37,7 +37,7 @@ class PerfilPolicy
      */
     public function update(User $user, Perfil $perfil): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -45,7 +45,7 @@ class PerfilPolicy
      */
     public function delete(User $user, Perfil $perfil): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -53,7 +53,7 @@ class PerfilPolicy
      */
     public function restore(User $user, Perfil $perfil): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 
     /**
@@ -61,6 +61,6 @@ class PerfilPolicy
      */
     public function forceDelete(User $user, Perfil $perfil): bool
     {
-        return false;
+        return $user->hasPermissao('administrador');
     }
 }

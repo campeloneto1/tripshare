@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use App\Http\Resources\UserCollection;
 use App\Models\User;
 use App\Services\UserService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private UserService $service) {}
 
     public function index()

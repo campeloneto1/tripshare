@@ -15,6 +15,7 @@ class PermissaoController extends Controller
     public function index()
     {
         try {
+            
             $permissoes = $this->service->list();
             return PermissaoResource::collection($permissoes);
         } catch (\Exception $e) {

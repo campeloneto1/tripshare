@@ -19,8 +19,8 @@ class PerfilResource extends JsonResource
             'nome' => $this->nome,
             'descricao' => $this->descricao,
             'permissoes' => $this->permissoes->pluck('nome'), // lista só os nomes das permissões
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

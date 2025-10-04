@@ -38,4 +38,16 @@ class PerfilService
     {
         return DB::transaction(fn() => $this->repository->delete($perfil));
     }
+
+    public function getPermissoes(Perfil $perfil)
+    {
+        return $perfil->permissoes()->get();
+    }
+
+    public function syncPermissoes(Perfil $perfil, array $permissaoIds): void
+    {
+        DB::transaction(function () use ($perfil, $permissaoIds) {
+            $perfil->permissoes()->sync($permissaoIds);
+        });
+    }
 }

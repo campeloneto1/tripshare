@@ -21,9 +21,13 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         Route::get('check', [AuthController::class, 'check']);
         Route::get('user', [AuthController::class, 'user']);
     });
+
     Route::apiResources([
         'users' => UserController::class,
         'perfis' => PerfilController::class,
         'permissoes' => PermissaoController::class,
     ]);
+
+    Route::post('perfis/{perfil}/permissoes', [PerfilController::class, 'permissoes']);
+    Route::post('perfis/{perfil}/permissoes/sync', [PerfilController::class, 'permissoesSync']);
 });

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePerfilRequest;
+use App\Http\Requests\SyncPermissoesRequest;
 use App\Http\Requests\UpdatePerfilRequest;
 use App\Http\Resources\PerfilResource;
+use App\Http\Resources\PermissaoResource;
 use App\Models\Perfil;
 use App\Services\PerfilService;
 
@@ -66,5 +68,26 @@ class PerfilController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function permissoes(Perfil $perfil)
+    {
+        try {
+            $permissoes = $this->service->getPermissoes($perfil);
+            return PermissaoResource::collection($permissoes);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function permissoesSync(Perfil $perfil, SyncPermissoesRequest $request)
+{
+    try {
+        $permissaoIds = $request->validated();
+        $this->service->syncPermissoes($perfil, $permissaoIds);
+        return response()->json(['message' => 'Permissões sincronizadas com sucesso.'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
    
 }

@@ -33,8 +33,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         'permissions' => PermissionController::class,
         'trips' => TripController::class,
         'trips.days' => TripDayController::class,
-        'trips.days.city' => TripDayCityController::class,
-        'trips.days.event' => TripDayEventController::class,
+        'trips.days.cities' => TripDayCityController::class,
+        'trips.days.cities.events' => TripDayEventController::class,
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

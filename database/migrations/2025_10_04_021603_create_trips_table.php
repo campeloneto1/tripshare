@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name', 150);
             $table->text('description')->nullable();
-            $table->date('initial_date');
-            $table->date('final_date')->nullable();
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
+            $table->boolean('is_public')->default(false);
             $table->timestamps();
               $table->softDeletes();
         });

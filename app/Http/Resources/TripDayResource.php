@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TripResource extends JsonResource
+class TripDayResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,18 +14,13 @@ class TripResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-         return [
+        return [
             'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
-            'start_date' => $this->start_date?->format('Y-m-d'),
-            'end_date' => $this->end_date?->format('Y-m-d'),
-            'user_id' => $this->user_id,
-            'user' => UserResource::make($this->whenLoaded('user')),
-            'is_public' => $this->is_public,
+            'trip_id' => $this->trip_id,
+            'date' => $this->date->format('Y-m-d'),
+            //'items' => TripItemResource::collection($this->whenLoaded('items')), // lazy load
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deleted_at,
         ];
     }
 }

@@ -21,8 +21,8 @@ class TripFactory extends Factory
             'user_id' => User::factory(),
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
-            'initial_date' => $this->faker->date(),
-            'final_date' => $this->faker->date(),
+            'start_date' => $this->faker->date(),
+            'end_date' => $this->faker->date(),
         ];
     }
 }

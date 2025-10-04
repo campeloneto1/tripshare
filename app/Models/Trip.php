@@ -17,13 +17,15 @@ class Trip extends Model
         'user_id',
         'name',
         'description',
-        'initial_date',
-        'final_date',
+        'start_date',
+        'end_date',
+        'is_public',
     ];
 
     protected $casts = [
-        'initial_date' => 'date',
-        'final_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_public' => 'boolean',
     ];
 
     protected $with = ['user'];
@@ -31,5 +33,10 @@ class Trip extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function days()
+    {
+        return $this->hasMany(TripDay::class);
     }
 }

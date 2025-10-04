@@ -16,11 +16,10 @@ class TripResource extends JsonResource
     {
          return [
             'id' => $this->id,
-            'usuario_criador_id' => $this->user_id,
-            'titulo' => $this->titulo,
-            'descricao' => $this->descricao,
-            'data_inicio' => $this->data_inicio?->format('Y-m-d'),
-            'data_fim' => $this->data_fim?->format('Y-m-d'),
+            'name' => $this->name,
+            'description' => $this->description,
+            'initial_date' => $this->initial_date?->format('Y-m-d'),
+            'final_date' => $this->final_date?->format('Y-m-d'),
             'user_id' => $this->user_id,
             'user' => UserResource::make($this->whenLoaded('user')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),

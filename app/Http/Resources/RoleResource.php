@@ -16,9 +16,9 @@ class RoleResource extends JsonResource
     {
          return [
             'id' => $this->id,
-            'nome' => $this->nome,
-            'descricao' => $this->descricao,
-            'permissions' => $this->permissions->pluck('nome'), // lista só os nomes das permissões
+            'name' => $this->name,
+            'description' => $this->description,
+            'permissions' => $this->permissions->pluck('name'), // lista só os nomes das permissões
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

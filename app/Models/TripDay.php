@@ -21,4 +21,8 @@ class TripDay extends Model
     {
         return $this->belongsTo(Trip::class);
     }
+
+     public function cities() {
+        return $this->hasMany(TripDayCity::class);
+    }
 }

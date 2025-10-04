@@ -27,6 +27,8 @@ class PermissionController extends Controller
     public function show(Permission $permission)
     {
         try {
+            $permission = $this->service->find($permission->id);
+            if (!$permission) return response()->json(['error' => 'Permissão não encontrada'], 404);
             return PermissionResource::make($permission);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -37,7 +39,10 @@ class PermissionController extends Controller
     {
         try {
             $permission = $this->service->store($request->validated());
-            return PermissionResource::make($permission);
+            return response()->json([
+                "message" => "Permissão cadastrada com sucesso",
+                "data" => PermissionResource::make($permission)
+            ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -49,7 +54,10 @@ class PermissionController extends Controller
     {
         try {
             $permission = $this->service->update($permission, $request->validated());
-            return PermissionResource::make($permission);
+             return response()->json([
+                "message" => "Permissão atualizada com sucesso",
+                "data" => PermissionResource::make($permission)
+            ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -61,7 +69,10 @@ class PermissionController extends Controller
     {
         try {
             $this->service->delete($permission);
-            return response()->json(null, 204);
+             return response()->json([
+                "message" => "Permissão excluída com sucesso",
+                "data" => null
+            ], 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

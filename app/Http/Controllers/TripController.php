@@ -31,6 +31,8 @@ class TripController extends Controller
     {
         try {
             $this->authorize('view', $trip);
+            $trip = $this->service->find($trip->id);
+            if (!$trip) return response()->json(['error' => 'Viagem não encontrada'], 404);
             return TripResource::make($trip);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -41,7 +43,10 @@ class TripController extends Controller
     {
         try {
             $trip = $this->service->store($request->validated());
-            return TripResource::make($trip);
+            return response()->json([
+                "message" => "Viagem cadastrada com sucesso",
+                "data" => TripResource::make($trip)
+            ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -53,7 +58,10 @@ class TripController extends Controller
     {
         try {
             $trip = $this->service->update($trip, $request->validated());
-            return TripResource::make($trip);
+            return response()->json([
+                "message" => "Viagem atualizada com sucesso",
+                "data" => TripResource::make($trip)
+            ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -65,7 +73,10 @@ class TripController extends Controller
     {
         try {
             $this->service->delete($trip);
-            return response()->json(null, 204);
+            return response()->json([
+                "message" => "Viagem excluída com sucesso",
+                "data" => TripResource::make($trip)
+            ], 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

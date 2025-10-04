@@ -21,25 +21,7 @@ class TripDayController extends Controller
     {
         try {
             $tripDays = $this->service->listByTrip($trip->id);
-            return response()->json(TripDayResource::collection($tripDays));
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Cadastra um novo dia dentro de uma viagem.
-     */
-    public function store(StoreTripDayRequest $request, Trip $trip)
-    {
-        try {
-            $data = $request->validated();
-            $data['trip_id'] = $trip->id;
-
-            $tripDay = $this->service->store($data);
-            return response()->json(TripDayResource::make($tripDay), 201);
-        } catch (\InvalidArgumentException $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return TripDayResource::collection($tripDays);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -56,7 +38,28 @@ class TripDayController extends Controller
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
 
-            return response()->json(TripDayResource::make($this->service->find($trip->id)));
+            return TripDayResource::make($this->service->find($trip->id));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Cadastra um novo dia dentro de uma viagem.
+     */
+    public function store(StoreTripDayRequest $request, Trip $trip)
+    {
+        try {
+            $data = $request->validated();
+            $data['trip_id'] = $trip->id;
+
+            $tripDay = $this->service->store($data);
+            return response()->json([
+                "message" => "Dia de viagem cadastrado com sucesso",
+                "data" => TripDayResource::make($tripDay)
+            ], 201);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -73,7 +76,10 @@ class TripDayController extends Controller
             }
 
             $tripDay = $this->service->update($tripDay, $request->validated());
-            return response()->json(TripDayResource::make($tripDay));
+            return response()->json([
+                "message" => "Dia de viagem atualizado com sucesso",
+                "data" => TripDayResource::make($tripDay)
+            ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -92,7 +98,10 @@ class TripDayController extends Controller
             }
 
             $this->service->delete($tripDay);
-            return response()->json(null, 204);
+             return response()->json([
+                "message" => "Dia de viagem excluído com sucesso",
+                "data" => null
+            ], 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

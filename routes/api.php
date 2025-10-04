@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\TripDayController;
 
@@ -34,4 +35,10 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);
     Route::post('roles/{role}/permissions/sync', [RoleController::class, 'syncPermissions']);
+
+     Route::prefix('places')->group(function () {
+        Route::get('search', [PlaceController::class, 'search']);
+        Route::get('nearby', [PlaceController::class, 'nearby']);
+        Route::get('{id}', [PlaceController::class, 'details']);
+     });
 });

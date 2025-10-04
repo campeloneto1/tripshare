@@ -40,7 +40,9 @@ class UserController extends Controller
     public function show(User $user)
     {
         try {
-            return $this->service->find($user->id);
+            $user = $this->service->find($user->id);
+            if (!$user) return response()->json(['error' => 'Usuário não encontrado'], 404);
+            return UserResource::make($user);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -61,7 +63,10 @@ class UserController extends Controller
     {
         try {
             $user = $this->service->store($request->validated());
-            return UserResource::make($user);
+            return response()->json([
+                "message" => "Usuário cadastrado com sucesso",
+                "data" => UserResource::make($user)
+            ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -73,7 +78,10 @@ class UserController extends Controller
     {
         try {
             $user = $this->service->update($user, $request->validated());
-            return UserResource::make($user);
+            return response()->json([
+                "message" => "Usuário atualizado com sucesso",
+                "data" => UserResource::make($user)
+            ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -85,7 +93,10 @@ class UserController extends Controller
     {
         try {
             $this->service->delete($user);
-            return response()->json(null, 204);
+            return response()->json([
+                "message" => "Usuário excluído com sucesso",
+                "data" => null
+            ], 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

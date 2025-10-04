@@ -29,6 +29,8 @@ class RoleController extends Controller
     public function show(Role $role)
     {
         try {
+            $role = $this->service->find($role->id);
+            if (!$role) return response()->json(['error' => 'Perfil não encontrado'], 404);
             return RoleResource::make($role);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -39,7 +41,10 @@ class RoleController extends Controller
     {
         try {
             $role = $this->service->store($request->validated());
-            return RoleResource::make($role);
+             return response()->json([
+                "message" => "Perfil cadastrado com sucesso",
+                "data" => RoleResource::make($role)
+            ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -51,7 +56,10 @@ class RoleController extends Controller
     {
         try {
             $role = $this->service->update($role, $request->validated());
-            return RoleResource::make($role);
+            return response()->json([
+                "message" => "Perfil atualizado com sucesso",
+                "data" => RoleResource::make($role)
+            ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -63,7 +71,10 @@ class RoleController extends Controller
     {
         try {
             $this->service->delete($role);
-            return response()->json(null, 204);
+            return response()->json([
+                "message" => "Perfil excluído com sucesso",
+                "data" => null
+            ], 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

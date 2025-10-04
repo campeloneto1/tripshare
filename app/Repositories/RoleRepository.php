@@ -39,7 +39,7 @@ class RoleRepository
      */
     public function find(int $id): ?Role
     {
-        return Role::find($id);
+        return $this->baseQuery()->find($id);
     }
 
     /**

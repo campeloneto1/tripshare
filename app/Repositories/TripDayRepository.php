@@ -6,14 +6,18 @@ use App\Models\TripDay;
 
 class TripDayRepository
 {
+    public function baseQuery(){
+        return TripDay::query();
+    }
+
     public function all()
     {
-        return TripDay::query(); 
+        return $this->baseQuery(); 
     }
 
     public function find(int $id): ?TripDay
     {
-        return TripDay::find($id);
+        return $this->baseQuery()->find($id);
     }
 
     public function create(array $data): TripDay

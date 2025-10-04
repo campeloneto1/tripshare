@@ -38,7 +38,7 @@ class PermissionRepository
      */
     public function find(int $id): ?Permission
     {
-        return Permission::find($id);
+        return $this->baseQuery()->find($id);
     }
 
 

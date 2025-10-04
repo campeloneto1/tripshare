@@ -7,6 +7,7 @@ use App\Models\Trip;
 use App\Repositories\TripDayRepository;
 use App\Repositories\TripRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TripService
 {
@@ -29,6 +30,7 @@ class TripService
     public function store(array $data): Trip
     {
         return DB::transaction(function () use ($data) {
+            $data['user_id'] = Auth::id();
             $return = $this->repository->create($data);
             $this->createTripDays($return);
             return $return;

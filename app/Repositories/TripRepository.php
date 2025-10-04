@@ -4,16 +4,19 @@ namespace App\Repositories;
 
 use App\Models\Trip;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TripRepository
 {
     public function baseQuery()
     {
-        return Trip::query();
+        $query = Trip::query();
+        return $query;
     }
 
     public function all(array $filters)
     {
+        $user = Auth::user();
         $query = $this->baseQuery();
 
         if(!empty($filters['search'])){
@@ -24,11 +27,15 @@ class TripRepository
             return $query->paginate((int)$filters['limit']);
         }
 
+        if(!$user->hasPermission('administrator')){
+            $query->where('user_id', $user->id);
+        }
+        
         return $query->get();
     }
     public function find(int $id): ?Trip
     {
-        return Trip::find($id);
+        return $this->baseQuery()->find($id);
     }
 
     public function create(array $data): Trip

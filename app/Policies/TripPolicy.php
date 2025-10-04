@@ -21,7 +21,7 @@ class TripPolicy
      */
     public function view(User $user, Trip $trip): bool
     {
-        return true;
+        return $trip->is_public || $user->id === $trip->user_id;
     }
 
     /**

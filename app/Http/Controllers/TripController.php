@@ -7,15 +7,18 @@ use App\Http\Requests\UpdateTripRequest;
 use App\Http\Resources\TripResource;
 use App\Models\Trip;
 use App\Services\TripService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class TripController extends Controller
 {
+     use AuthorizesRequests;
    public function __construct(private TripService $service) {}
 
     public function index(Request $request)
     {
         try {
+            $this->authorize('viewAny',Trip::class);
             $filters = $request->only(['limit', 'search']);
             $trips = $this->service->list($filters);
             return TripResource::collection($trips);
@@ -27,6 +30,7 @@ class TripController extends Controller
     public function show(Trip $trip)
     {
         try {
+            $this->authorize('view', $trip);
             return TripResource::make($trip);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

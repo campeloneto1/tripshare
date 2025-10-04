@@ -73,6 +73,6 @@ class User extends Authenticatable
     }
 
     public function trips(){
-        return $this->hasMany(Trip::class)->orderBy('id', 'desc');
+        return $this->hasMany(Trip::class)->without('user')->orderBy('id', 'desc');
     }
 }

@@ -44,12 +44,12 @@ class UserRepository
 
     public function find(int $id): ?User
     {
-        return User::find($id);
+        return $this->baseQuery()->find($id);
     }
 
     public function findWithTrashed(int $id): ?User
     {
-        return User::withTrashed()->find($id);
+        return $this->baseQuery()->withTrashed()->find($id);
     }
 
     public function create(array $data): User

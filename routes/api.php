@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('check', [AuthController::class, 'check']);
-        Route::get('user', [AuthController::class, 'user']);
+        Route::get('profile', [AuthController::class, 'user']);
     });
 
     Route::apiResources([
@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         'roles' => RoleController::class,
         'permissions' => PermissionController::class,
         'trips' => TripController::class,
-        'trip.days' => TripDayController::class,
+        'trips.days' => TripDayController::class,
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

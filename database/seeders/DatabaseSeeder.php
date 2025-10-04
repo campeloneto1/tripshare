@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             PerfilSeeder::class,
             PermissaoSeeder::class,
             PerfilPermissaoSeeder::class,
-            UserSeeder::class
+            UserSeeder::class,
+            ViagemSeeder::class,
         ]);
     }
 }

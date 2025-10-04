@@ -38,4 +38,9 @@ class TripDayService
     {
         return DB::transaction(fn() => $this->repository->delete($tripDay));
     }
+
+    public function listByTrip(int $tripId)
+    {
+        return $this->repository->where('trip_id', $tripId)->get();
+    }
 }

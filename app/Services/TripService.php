@@ -4,11 +4,16 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Trip;
+use App\Repositories\TripDayRepository;
 use App\Repositories\TripRepository;
+use Carbon\Carbon;
 
 class TripService
 {
-    public function __construct(private TripRepository $repository) {}
+    public function __construct(
+        private TripRepository $repository,
+        private TripDayRepository $tripDayRepository
+        ) {}
 
     public function list()
     {
@@ -23,7 +28,9 @@ class TripService
     public function store(array $data): Trip
     {
         return DB::transaction(function () use ($data) {
-            return $this->repository->create($data);
+            $return = $this->repository->create($data);
+            $this->createTripDays($return);
+            return $return;
         });
     }
 
@@ -37,5 +44,23 @@ class TripService
     public function delete(Trip $trip): bool
     {
         return DB::transaction(fn() => $this->repository->delete($trip));
+    }
+
+    protected function createTripDays(Trip $trip): void
+    {
+        $startDate = Carbon::parse($trip->start_date);
+        $endDate = Carbon::parse($trip->end_date);
+
+        $days = [];
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            $days[] = [
+                'trip_id' => $trip->id,
+                'date' => $date->format('Y-m-d'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        $this->tripDayRepository->insert($days);
+        
     }
 }

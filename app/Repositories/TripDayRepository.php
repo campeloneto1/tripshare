@@ -31,4 +31,14 @@ class TripDayRepository
     {
         return $tripDay->delete();
     }
+
+    public function insert(array $data): void
+    {
+        TripDay::insert($data);
+    }
+
+    public function where(string $column, $value)
+    {
+        return $this->all()->where($column, $value);
+    }
 }

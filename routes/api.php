@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\TripController;
+use App\Http\Controllers\TripDayController;
 
 // Teste rápido
 Route::get('teste', function () {
@@ -26,6 +28,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         'users' => UserController::class,
         'roles' => RoleController::class,
         'permissions' => PermissionController::class,
+        'trips' => TripController::class,
+        'trip.days' => TripDayController::class,
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

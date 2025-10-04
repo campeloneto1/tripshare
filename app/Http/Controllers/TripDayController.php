@@ -5,38 +5,39 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTripDayRequest;
 use App\Http\Requests\UpdateTripDayRequest;
 use App\Http\Resources\TripDayResource;
+use App\Models\Trip;
 use App\Models\TripDay;
 use App\Services\TripDayService;
+use Illuminate\Http\JsonResponse;
 
 class TripDayController extends Controller
 {
-   public function __construct(private TripDayService $service) {}
+    public function __construct(private TripDayService $service) {}
 
-    public function index()
+    /**
+     * Lista todos os dias de uma viagem.
+     */
+    public function index(Trip $trip): JsonResponse
     {
         try {
-            
-            $tripsDays = $this->service->list();
-            return TripDayResource::collection($tripsDays);
+            $tripDays = $this->service->listByTrip($trip->id);
+            return response()->json(TripDayResource::collection($tripDays));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function show(TripDay $tripDay)
+    /**
+     * Cadastra um novo dia dentro de uma viagem.
+     */
+    public function store(StoreTripDayRequest $request, Trip $trip): JsonResponse
     {
         try {
-            return TripDayResource::make($tripDay);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+            $data = $request->validated();
+            $data['trip_id'] = $trip->id;
 
-    public function store(StoreTripDayRequest $request)
-    {
-        try {
-            $tripDay = $this->service->store($request->validated());
-            return TripDayResource::make($tripDay);
+            $tripDay = $this->service->store($data);
+            return response()->json(TripDayResource::make($tripDay), 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -44,11 +45,35 @@ class TripDayController extends Controller
         }
     }
 
-    public function update(UpdateTripDayRequest $request, TripDay $tripDay)
+    /**
+     * Mostra um dia específico.
+     */
+    public function show(Trip $trip, TripDay $tripDay): JsonResponse
     {
         try {
+            // opcional: garantir que o dia pertence à viagem
+            if ($tripDay->trip_id !== $trip->id) {
+                return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
+            }
+
+            return response()->json(TripDayResource::make($tripDay));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Atualiza um dia da viagem.
+     */
+    public function update(UpdateTripDayRequest $request, Trip $trip, TripDay $tripDay): JsonResponse
+    {
+        try {
+            if ($tripDay->trip_id !== $trip->id) {
+                return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
+            }
+
             $tripDay = $this->service->update($tripDay, $request->validated());
-            return TripDayResource::make($tripDay);
+            return response()->json(TripDayResource::make($tripDay));
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
@@ -56,10 +81,17 @@ class TripDayController extends Controller
         }
     }
 
-    public function destroy(TripDay $trip)
+    /**
+     * Exclui um dia da viagem.
+     */
+    public function destroy(Trip $trip, TripDay $tripDay): JsonResponse
     {
         try {
-            $this->service->delete($trip);
+            if ($tripDay->trip_id !== $trip->id) {
+                return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
+            }
+
+            $this->service->delete($tripDay);
             return response()->json(null, 204);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);

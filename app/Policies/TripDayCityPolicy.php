@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\TripDay;
 use App\Models\TripDayCity;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -49,9 +50,9 @@ class TripDayCityPolicy
     /**
      * Pode criar uma cidade no dia se for dono ou admin da viagem
      */
-    public function create(User $user, TripDayCity $tripDayCity): bool
+   public function create(User $user, TripDay $day): bool
     {
-        $trip = $tripDayCity->tripDay->trip;
+        $trip = $day->trip;
         return $this->canManageTrip($user, $trip);
     }
 

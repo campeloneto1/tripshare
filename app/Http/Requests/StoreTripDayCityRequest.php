@@ -12,7 +12,7 @@ class StoreTripDayCityRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'trip_day_id' => 'required|exists:trip_days,id',
+            'trip_day_id' => 'required|exists:trips_days,id',
             'city_name' => 'required|string|max:255',
             'lat' => 'required|numeric|between:-90,90',
             'lon' => 'required|numeric|between:-180,180',

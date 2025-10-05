@@ -20,6 +20,11 @@ class TripDayCityResource extends JsonResource
             'lat' => $this->lat,
             'lon' => $this->lon,
             'order' => $this->order,
+            'osm_id' => $this->osm_id,
+            'country_code' => $this->country_code,
+            'trip_day_id' => $this->trip_day_id,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'events' => TripDayEventResource::collection($this->whenLoaded('events')),
         ];
     }

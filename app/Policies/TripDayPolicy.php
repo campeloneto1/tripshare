@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Trip;
 use App\Models\TripDay;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -41,10 +42,9 @@ class TripDayPolicy
         return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
-    public function create(User $user): bool
+   public function create(User $user, Trip $trip): bool
     {
-        // Será validado no controller verificando a trip
-        return true;
+        return $this->canManageTrip($user, $trip);
     }
 
     public function update(User $user, TripDay $tripDay): bool

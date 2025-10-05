@@ -4,15 +4,18 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class FollowAcceptedNotification extends Notification
+class FollowAcceptedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
         public User $acceptedBy
-    ) {}
+    ) {
+        $this->onQueue('notifications');
+    }
 
     public function via(object $notifiable): array
     {

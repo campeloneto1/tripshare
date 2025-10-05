@@ -17,7 +17,11 @@ class UserResource extends JsonResource
         $loggedUser = $request->user();
         $isOwner = $loggedUser && $loggedUser->id === $this->id;
         $showRelationships = $this->is_public || $isOwner;
-        $is_admin = $loggedUser->is_admin();
+        if($loggedUser){
+            $is_admin = $loggedUser->is_admin();
+        } else {
+            $is_admin = false;
+        }
 
         return [
             'id' => $this->id,

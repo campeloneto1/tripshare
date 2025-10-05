@@ -13,7 +13,7 @@ class TripUserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class TripUserPolicy
      */
     public function view(User $user, TripUser $tripUser): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class TripUserPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class TripUserPolicy
      */
     public function update(User $user, TripUser $tripUser): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class TripUserPolicy
      */
     public function delete(User $user, TripUser $tripUser): bool
     {
-        return false;
+        return $user->id === $tripUser->trip->user_id;
     }
 
     /**

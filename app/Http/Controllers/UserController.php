@@ -18,6 +18,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
+             $this->authorize('viewAny',User::class);
             $filters = $request->only(['limit', 'search']);
             $users = $this->service->list($filters);
             return UserResource::collection($users);
@@ -29,6 +30,7 @@ class UserController extends Controller
     public function indexAll(Request $request)
     {
         try {
+             $this->authorize('viewAny',User::class);
             $filters = $request->only(['limit', 'search']);
             $users = $this->service->listAll($filters);
             return UserResource::collection($users);
@@ -40,6 +42,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         try {
+             $this->authorize('view',$user);
             $user = $this->service->find($user->id);
             if (!$user) return response()->json(['error' => 'Usuário não encontrado'], 404);
             return UserResource::make($user);
@@ -51,6 +54,7 @@ class UserController extends Controller
     public function showWithTrashed(int $id)
     {
         try {
+            
             $user = $this->service->findWithTrashed($id);
             if (!$user) return response()->json(['error' => 'Usuário não encontrado'], 404);
             return UserResource::make($user);
@@ -62,6 +66,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         try {
+             $this->authorize('create',User::class);
             $user = $this->service->store($request->validated());
             return response()->json([
                 "message" => "Usuário cadastrado com sucesso",
@@ -77,6 +82,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         try {
+            $this->authorize('update',$user);
             $user = $this->service->update($user, $request->validated());
             return response()->json([
                 "message" => "Usuário atualizado com sucesso",
@@ -92,6 +98,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
+            $this->authorize('delete',$user);
             $this->service->delete($user);
             return response()->json([
                 "message" => "Usuário excluído com sucesso",
@@ -107,6 +114,7 @@ class UserController extends Controller
     public function restore(int $id)
     {
         try {
+            
             $user = $this->service->findWithTrashed($id);
             if (!$user) return response()->json(['error' => 'Usuário não encontrado'], 404);
 

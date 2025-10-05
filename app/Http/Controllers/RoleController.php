@@ -9,15 +9,18 @@ use App\Http\Resources\RoleResource;
 use App\Http\Resources\PermissionResource;
 use App\Models\Role;
 use App\Services\RoleService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    use AuthorizesRequests;
      public function __construct(private RoleService $service) {}
 
     public function index(Request $request)
     {
         try {
+            $this->authorize('viewAny',Role::class);
             $filters = $request->only(['limit', 'search']);
             $roles = $this->service->list($filters);
             return RoleResource::collection($roles);
@@ -29,6 +32,7 @@ class RoleController extends Controller
     public function show(Role $role)
     {
         try {
+            $this->authorize('view', $role);
             $role = $this->service->find($role->id);
             if (!$role) return response()->json(['error' => 'Perfil não encontrado'], 404);
             return RoleResource::make($role);
@@ -40,6 +44,7 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request)
     {
         try {
+            $this->authorize('create',Role::class);
             $role = $this->service->store($request->validated());
              return response()->json([
                 "message" => "Perfil cadastrado com sucesso",
@@ -55,6 +60,7 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, Role $role)
     {
         try {
+            $this->authorize('update',$role);
             $role = $this->service->update($role, $request->validated());
             return response()->json([
                 "message" => "Perfil atualizado com sucesso",
@@ -70,6 +76,7 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         try {
+             $this->authorize('delete',$role);
             $this->service->delete($role);
             return response()->json([
                 "message" => "Perfil excluído com sucesso",
@@ -95,6 +102,7 @@ class RoleController extends Controller
     public function syncPermissions(Role $role, SyncPermissionsRequest $request)
 {
     try {
+        $this->authorize('viewAny',Role::class);
         $permissionIds = $request->validated();
         $this->service->syncPermissions($role, $permissionIds);
         return response()->json(['message' => 'Permissões sincronizadas com sucesso.'], 200);

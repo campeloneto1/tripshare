@@ -9,58 +9,61 @@ use Illuminate\Auth\Access\Response;
 class TripDayPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Verifica se o usuário tem acesso à viagem (dono ou participante)
      */
+    private function canAccessTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Verifica se o usuário pode editar a viagem (dono ou admin)
+     */
+    private function canManageTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()
+                ->where('user_id', $user->id)
+                ->where('role', 'admin')
+                ->exists();
+    }
+
     public function viewAny(User $user): bool
     {
         return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, TripDay $tripDay): bool
     {
-        return true;
+        $trip = $tripDay->trip;
+        // Pode ver se: viagem é pública OU tem acesso à viagem
+        return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
+        // Será validado no controller verificando a trip
         return true;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, TripDay $tripDay): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDay->trip);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, TripDay $tripDay): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDay->trip);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, TripDay $tripDay): bool
     {
-        return false;
+        return $this->canManageTrip($user, $tripDay->trip);
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, TripDay $tripDay): bool
     {
-        return false;
+        return $user->id === $tripDay->trip->user_id; // Só o dono
     }
 }

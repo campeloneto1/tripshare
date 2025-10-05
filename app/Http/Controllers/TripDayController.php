@@ -8,10 +8,12 @@ use App\Http\Resources\TripDayResource;
 use App\Models\Trip;
 use App\Models\TripDay;
 use App\Services\TripDayService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 
 class TripDayController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private TripDayService $service) {}
 
     /**
@@ -20,6 +22,7 @@ class TripDayController extends Controller
     public function index(Trip $trip)
     {
         try {
+            $this->authorize('viewAny',TripDay::class);
             $tripDays = $this->service->listByTrip($trip->id);
             return TripDayResource::collection($tripDays);
         } catch (\Exception $e) {
@@ -30,11 +33,12 @@ class TripDayController extends Controller
     /**
      * Mostra um dia específico.
      */
-    public function show(Trip $trip, TripDay $tripDay)
+    public function show(Trip $trip, TripDay $day)
     {
         try {
+            $this->authorize('view',$day);
             // opcional: garantir que o dia pertence à viagem
-            if ($tripDay->trip_id !== $trip->id) {
+            if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
 
@@ -50,6 +54,7 @@ class TripDayController extends Controller
     public function store(StoreTripDayRequest $request, Trip $trip)
     {
         try {
+            $this->authorize('create',TripDay::class);
             $data = $request->validated();
             $data['trip_id'] = $trip->id;
 
@@ -68,17 +73,18 @@ class TripDayController extends Controller
     /**
      * Atualiza um dia da viagem.
      */
-    public function update(UpdateTripDayRequest $request, Trip $trip, TripDay $tripDay)
+    public function update(UpdateTripDayRequest $request, Trip $trip, TripDay $day)
     {
         try {
-            if ($tripDay->trip_id !== $trip->id) {
+             $this->authorize('update',$day);
+            if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
 
-            $tripDay = $this->service->update($tripDay, $request->validated());
+            $day = $this->service->update($day, $request->validated());
             return response()->json([
                 "message" => "Dia de viagem atualizado com sucesso",
-                "data" => TripDayResource::make($tripDay)
+                "data" => TripDayResource::make($day)
             ], 200);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
@@ -90,14 +96,15 @@ class TripDayController extends Controller
     /**
      * Exclui um dia da viagem.
      */
-    public function destroy(Trip $trip, TripDay $tripDay)
+    public function destroy(Trip $trip, TripDay $day)
     {
         try {
-            if ($tripDay->trip_id !== $trip->id) {
+             $this->authorize('delete',$day);
+            if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
 
-            $this->service->delete($tripDay);
+            $this->service->delete($day);
              return response()->json([
                 "message" => "Dia de viagem excluído com sucesso",
                 "data" => null

@@ -10,9 +10,11 @@ use App\Models\TripDay;
 use App\Models\TripDayCity;
 use App\Models\TripDayEvent;
 use App\Services\TripDayEventService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TripDayEventController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private TripDayEventService $service) {}
 
     /**
@@ -21,6 +23,7 @@ class TripDayEventController extends Controller
     public function index(Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
+             $this->authorize('viewAny',TripDayEvent::class);
             $tripDaysEvents = $this->service->listByTripDayCity($trip->id, $day->id, $city->id);
             return TripDayEventResource::collection($tripDaysEvents);
         } catch (\Exception $e) {
@@ -34,6 +37,7 @@ class TripDayEventController extends Controller
     public function show(Trip $trip, TripDay $day, TripDayCity $city, TripDayEvent $event)
     {
         try {
+            $this->authorize('view',$event);
             // opcional: garantir que o dia pertence à viagem
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
@@ -51,6 +55,7 @@ class TripDayEventController extends Controller
     public function store(StoreTripDayEventRequest $request, Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
+             $this->authorize('create',TripDayEvent::class);
             $data = $request->validated();
             $data['trip_day_city_id'] = $city->id;
 
@@ -72,6 +77,7 @@ class TripDayEventController extends Controller
     public function update(UpdateTripDayEventRequest $request, Trip $trip, TripDay $day, TripDayCity $city, TripDayEvent $event)
     {
         try {
+            $this->authorize('update',$event);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
@@ -94,6 +100,7 @@ class TripDayEventController extends Controller
     public function destroy(Trip $trip, TripDay $day, TripDayCity $city, TripDayEvent $event)
     {
         try {
+            $this->authorize('delete',$event);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }

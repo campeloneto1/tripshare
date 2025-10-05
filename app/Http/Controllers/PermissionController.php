@@ -7,15 +7,18 @@ use App\Http\Requests\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
 use App\Models\Permission;
 use App\Services\PermissionService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
-     public function __construct(private PermissionService $service) {}
+    use AuthorizesRequests;
+    public function __construct(private PermissionService $service) {}
 
     public function index(Request $request)
     {
         try {
+            $this->authorize('viewAny',Permission::class);
             $filters = $request->only(['limit', 'search']);
             $permissions = $this->service->list($filters);
             return PermissionResource::collection($permissions);
@@ -27,6 +30,7 @@ class PermissionController extends Controller
     public function show(Permission $permission)
     {
         try {
+            $this->authorize('view', $permission);
             $permission = $this->service->find($permission->id);
             if (!$permission) return response()->json(['error' => 'Permissão não encontrada'], 404);
             return PermissionResource::make($permission);
@@ -38,6 +42,7 @@ class PermissionController extends Controller
     public function store(StorePermissionRequest $request)
     {
         try {
+            $this->authorize('create',Permission::class);
             $permission = $this->service->store($request->validated());
             return response()->json([
                 "message" => "Permissão cadastrada com sucesso",
@@ -53,6 +58,7 @@ class PermissionController extends Controller
     public function update(UpdatePermissionRequest $request, Permission $permission)
     {
         try {
+            $this->authorize('update',$permission);
             $permission = $this->service->update($permission, $request->validated());
              return response()->json([
                 "message" => "Permissão atualizada com sucesso",
@@ -68,6 +74,7 @@ class PermissionController extends Controller
     public function destroy(Permission $permission)
     {
         try {
+            $this->authorize('delete',$permission);
             $this->service->delete($permission);
              return response()->json([
                 "message" => "Permissão excluída com sucesso",

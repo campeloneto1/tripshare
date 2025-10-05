@@ -9,9 +9,11 @@ use App\Models\Trip;
 use App\Models\TripDay;
 use App\Models\TripDayCity;
 use App\Services\TripDayCityService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TripDayCityController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private TripDayCityService $service) {}
 
     /**
@@ -20,6 +22,7 @@ class TripDayCityController extends Controller
     public function index(Trip $trip, TripDay $day)
     {
         try {
+            $this->authorize('viewAny',TripDayCity::class);
             $tripDaysCities = $this->service->listByTripDay($trip->id, $day->id);
             return TripDayCityResource::collection($tripDaysCities);
         } catch (\Exception $e) {
@@ -33,6 +36,7 @@ class TripDayCityController extends Controller
     public function show(Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
+            $this->authorize('view',$city);
             // opcional: garantir que o dia pertence à viagem
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
@@ -50,6 +54,7 @@ class TripDayCityController extends Controller
     public function store(StoreTripDayCityRequest $request, Trip $trip, TripDay $day)
     {
         try {
+            $this->authorize('create',TripDayCity::class);
             $data = $request->validated();
             $data['trip_day_id'] = $day->id;
 
@@ -71,6 +76,7 @@ class TripDayCityController extends Controller
     public function update(UpdateTripDayCityRequest $request, Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
+            $this->authorize('update',$city);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
@@ -93,6 +99,7 @@ class TripDayCityController extends Controller
     public function destroy(Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
+            $this->authorize('delete',$city);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }

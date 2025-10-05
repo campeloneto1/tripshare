@@ -13,7 +13,7 @@ class TripDayEventPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class TripDayEventPolicy
      */
     public function view(User $user, TripDayEvent $tripDayEvents): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class TripDayEventPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class TripDayEventPolicy
      */
     public function update(User $user, TripDayEvent $tripDayEvents): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class TripDayEventPolicy
      */
     public function delete(User $user, TripDayEvent $tripDayEvents): bool
     {
-        return false;
+        return true;
     }
 
     /**

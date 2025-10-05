@@ -17,11 +17,11 @@ Route::get('teste', function () {
     return ['ok' => true];
 });
 
-// Login com throttle
-Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
+// Login com throttle agressivo (5 tentativas por minuto)
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
-// Grupo de rotas protegidas
-Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+// Grupo de rotas protegidas com rate limiting (60 requisições por minuto)
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('check', [AuthController::class, 'check']);
@@ -42,7 +42,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);
     Route::post('roles/{role}/permissions/sync', [RoleController::class, 'syncPermissions']);
 
-     Route::prefix('places')->group(function () {
+     // Places API com rate limiting mais restritivo (API externa)
+     Route::prefix('places')->middleware('throttle:30,1')->group(function () {
         Route::get('search', [PlaceController::class, 'search']);
         Route::get('nearby', [PlaceController::class, 'nearby']);
         Route::get('{id}', [PlaceController::class, 'details']);

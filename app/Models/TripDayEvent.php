@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class TripDayEvent extends Model
 {
@@ -31,5 +32,19 @@ class TripDayEvent extends Model
 
     public function updater() {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Boot method para limpar cache do Trip quando TripDayEvent é modificado
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (TripDayEvent $event) {
+            $event->city->day->trip->clearSummaryCache();
+        });
+
+        static::deleted(function (TripDayEvent $event) {
+            $event->city->day->trip->clearSummaryCache();
+        });
     }
 }

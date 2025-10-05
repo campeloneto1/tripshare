@@ -21,7 +21,9 @@ class TripPolicy
      */
     public function view(User $user, Trip $trip): bool
     {
-        return $trip->is_public || $user->id === $trip->user_id || $trip->users()->where('user_id', $user->id)->exists();
+        return $trip->is_public
+            || $user->id === $trip->user_id
+            || $trip->users()->where('user_id', $user->id)->exists();
     }
 
     /**
@@ -37,7 +39,9 @@ class TripPolicy
      */
     public function update(User $user, Trip $trip): bool
     {
-        return $user->id === $trip->user_id;
+        // Owner or admin participant can update
+        return $user->id === $trip->user_id
+            || $this->isAdmin($user, $trip);
     }
 
     /**
@@ -45,7 +49,19 @@ class TripPolicy
      */
     public function delete(User $user, Trip $trip): bool
     {
+        // Only owner can delete
         return $user->id === $trip->user_id;
+    }
+
+    /**
+     * Check if user is an admin participant in the trip
+     */
+    private function isAdmin(User $user, Trip $trip): bool
+    {
+        return $trip->users()
+            ->where('user_id', $user->id)
+            ->where('role', 'admin')
+            ->exists();
     }
 
     /**

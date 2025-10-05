@@ -31,6 +31,7 @@ class TripService
     {
         return DB::transaction(function () use ($data) {
             $data['user_id'] = Auth::id();
+            $data['created_by'] = Auth::id();
             $return = $this->repository->create($data);
             $this->createTripDays($return);
             return $return;
@@ -40,6 +41,7 @@ class TripService
     public function update(Trip $trip, array $data): Trip
     {
         return DB::transaction(function () use ($trip, $data) {
+            $data['updated_by'] = Auth::id();
             return $this->repository->update($trip, $data);
         });
     }

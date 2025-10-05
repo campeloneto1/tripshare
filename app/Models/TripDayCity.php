@@ -13,7 +13,7 @@ class TripDayCity extends Model
     protected $table = 'trips_days_cities';
 
 
-    protected $fillable = ['trip_day_id','city_name','lat','lon','osm_id','country_code','order'];
+    protected $fillable = ['trip_day_id','city_name','lat','lon','osm_id','country_code','order', 'created_by', 'updated_by'];
 
     public function events() {
         return $this->hasMany(TripDayEvent::class)->orderBy('order');
@@ -22,4 +22,10 @@ class TripDayCity extends Model
     public function day() {
         return $this->belongsTo(TripDay::class, 'trip_day_id');
     }
+
+    public function creator() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+
 }

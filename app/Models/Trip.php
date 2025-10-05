@@ -20,6 +20,8 @@ class Trip extends Model
         'start_date',
         'end_date',
         'is_public',
+        'created_by',
+        'updated_by'
     ];
 
     protected $casts = [
@@ -44,5 +46,13 @@ class Trip extends Model
     public function days()
     {
         return $this->hasMany(TripDay::class)->orderBy('date', 'asc');
+    }
+
+    public function creator() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater() {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use App\Models\TripDayEvent;
 use App\Repositories\TripDayEventRepository;
+use Illuminate\Support\Facades\Auth;
 
 class TripDayEventService
 {
@@ -23,6 +24,7 @@ class TripDayEventService
     public function store(array $data): TripDayEvent
     {
         return DB::transaction(function () use ($data) {
+            $data['created_by'] = Auth::id();
             return $this->repository->create($data);
         });
     }
@@ -30,6 +32,7 @@ class TripDayEventService
     public function update(TripDayEvent $tripDayEvent, array $data): TripDayEvent
     {
         return DB::transaction(function () use ($tripDayEvent, $data) {
+             $data['updated_by'] = Auth::id();
             return $this->repository->update($tripDayEvent, $data);
         });
     }

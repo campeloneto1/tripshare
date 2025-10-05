@@ -13,7 +13,8 @@ class UserFollowPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        // Qualquer usuário autenticado pode listar seguidores
+        return true;
     }
 
     /**
@@ -21,7 +22,9 @@ class UserFollowPolicy
      */
     public function view(User $user, UserFollow $userFollow): bool
     {
-        return false;
+        // Usuário pode ver se ele é o seguidor ou o seguido
+        return $user->id === $userFollow->follower_id ||
+               $user->id === $userFollow->following_id;
     }
 
     /**
@@ -29,7 +32,8 @@ class UserFollowPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // Qualquer usuário autenticado pode seguir outros
+        return true;
     }
 
     /**
@@ -37,7 +41,8 @@ class UserFollowPolicy
      */
     public function update(User $user, UserFollow $userFollow): bool
     {
-        return false;
+        // Apenas o seguido pode atualizar (aceitar/rejeitar)
+        return $user->id === $userFollow->following_id;
     }
 
     /**
@@ -45,7 +50,9 @@ class UserFollowPolicy
      */
     public function delete(User $user, UserFollow $userFollow): bool
     {
-        return false;
+        // O seguidor pode cancelar o follow ou o seguido pode remover
+        return $user->id === $userFollow->follower_id ||
+               $user->id === $userFollow->following_id;
     }
 
     /**
@@ -53,7 +60,7 @@ class UserFollowPolicy
      */
     public function restore(User $user, UserFollow $userFollow): bool
     {
-        return false;
+        return $user->id === $userFollow->follower_id;
     }
 
     /**
@@ -61,6 +68,6 @@ class UserFollowPolicy
      */
     public function forceDelete(User $user, UserFollow $userFollow): bool
     {
-        return false;
+        return $user->id === $userFollow->follower_id;
     }
 }

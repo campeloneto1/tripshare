@@ -28,8 +28,17 @@ class UserFollowService
     {
         return DB::transaction(function () use ($data) {
             $data['follower_id'] = Auth::id();
-            $return = $this->repository->create($data);
-            return $return;
+
+            // Verifica se já existe um follow ativo
+            $existing = UserFollow::where('follower_id', $data['follower_id'])
+                ->where('following_id', $data['following_id'])
+                ->first();
+
+            if ($existing) {
+                throw new \InvalidArgumentException('Você já está seguindo este usuário.');
+            }
+
+            return $this->repository->create($data);
         });
     }
 

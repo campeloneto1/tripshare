@@ -14,23 +14,27 @@ class UserFollowController extends Controller
      public function __construct(private UserFollowService $service) {}
 
     /**
-     * Lista todos os dias de uma viagem.
+     * Lista todos os seguidores/seguindo de um usuário.
      */
     public function index(User $user)
     {
+        $this->authorize('viewAny', UserFollow::class);
+
         try {
-            $tripUsers = $this->service->listByUser($user->id);
-            return UserFollowResource::collection($tripUsers);
+            $follows = $this->service->listByUser($user->id);
+            return UserFollowResource::collection($follows);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * Mostra um dia específico.
+     * Mostra um relacionamento de follow específico.
      */
-    public function show(User $user, userFollow $userFollow)
+    public function show(User $user, UserFollow $userFollow)
     {
+        $this->authorize('view', $userFollow);
+
         try {
             return UserFollowResource::make($this->service->find($userFollow->id));
         } catch (\Exception $e) {
@@ -39,18 +43,24 @@ class UserFollowController extends Controller
     }
 
     /**
-     * Cadastra um novo dia dentro de uma viagem.
+     * Cria um novo follow (seguir um usuário).
      */
     public function store(StoreUserFollowRequest $request, User $user)
     {
+        $this->authorize('create', UserFollow::class);
+
         try {
             $data = $request->validated();
-            $data['follower_id'] = $user->id;
 
-            $uuserFollow = $this->service->store($data);
+            // Validação: não pode seguir a si mesmo
+            if ($data['following_id'] == auth()->id()) {
+                return response()->json(['error' => 'Você não pode seguir a si mesmo.'], 400);
+            }
+
+            $userFollow = $this->service->store($data);
             return response()->json([
-                "message" => "Seguidor cadastrado com sucesso",
-                "data" => UserFollowResource::make($uuserFollow)
+                "message" => "Follow criado com sucesso",
+                "data" => UserFollowResource::make($userFollow)
             ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
@@ -60,18 +70,16 @@ class UserFollowController extends Controller
     }
 
     /**
-     * Atualiza um dia da viagem.
+     * Atualiza um follow (aceitar/rejeitar solicitação).
      */
     public function update(UpdateUserFollowRequest $request, User $user, UserFollow $userFollow)
     {
-        try {
-            if ($userFollow->trip_id !== $user->id) {
-                return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
-            }
+        $this->authorize('update', $userFollow);
 
+        try {
             $userFollow = $this->service->update($userFollow, $request->validated());
             return response()->json([
-                "message" => "Seguidor atualizado com sucesso",
+                "message" => "Follow atualizado com sucesso",
                 "data" => UserFollowResource::make($userFollow)
             ], 200);
         } catch (\InvalidArgumentException $e) {
@@ -82,17 +90,18 @@ class UserFollowController extends Controller
     }
 
     /**
-     * Exclui um dia da viagem.
+     * Exclui um follow (unfollow).
      */
     public function destroy(User $user, UserFollow $userFollow)
     {
+        $this->authorize('delete', $userFollow);
+
         try {
-          
             $this->service->delete($userFollow);
-             return response()->json([
-                "message" => "Usuário excluído com sucesso",
+            return response()->json([
+                "message" => "Follow removido com sucesso",
                 "data" => null
-            ], 204);
+            ], 200);
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {

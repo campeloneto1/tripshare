@@ -16,8 +16,25 @@ class UserFollowRepository
 
     public function all(array $filters)
     {
-        $user = Auth::user();
         $query = $this->baseQuery();
+
+        // Aplica filtro de follower_id
+        if (isset($filters['follower_id'])) {
+            $query->where('follower_id', $filters['follower_id']);
+        }
+
+        // Aplica filtro de following_id
+        if (isset($filters['following_id'])) {
+            $query->where('following_id', $filters['following_id']);
+        }
+
+        // Aplica filtro de status
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        // Carrega relationships
+        $query->with(['follower', 'following']);
 
         return $query->get();
     }

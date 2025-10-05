@@ -87,21 +87,43 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
+    // Relacionamento com a tabela pivot UserFollow
+    public function followerRelations()
+    {
+        return $this->hasMany(UserFollow::class, 'following_id');
+    }
+
+    public function followingRelations()
+    {
+        return $this->hasMany(UserFollow::class, 'follower_id');
+    }
+
+    // Helpers para acessar os usuários diretamente
     public function followers()
     {
-        return $this->hasMany(UserFollow::class, 'following_id')
-                    ->where('status', 'accepted');
+        return $this->belongsToMany(User::class, 'users_follows', 'following_id', 'follower_id')
+                    ->wherePivot('status', 'accepted')
+                    ->withPivot('status', 'accepted_at')
+                    ->withTimestamps();
     }
 
     public function following()
     {
-        return $this->hasMany(UserFollow::class, 'follower_id')
-                    ->where('status', 'accepted');
+        return $this->belongsToMany(User::class, 'users_follows', 'follower_id', 'following_id')
+                    ->wherePivot('status', 'accepted')
+                    ->withPivot('status', 'accepted_at')
+                    ->withTimestamps();
     }
 
-    public function pendingRequests()
+    public function pendingFollowRequests()
     {
         return $this->hasMany(UserFollow::class, 'following_id')
+                    ->where('status', 'pending');
+    }
+
+    public function sentFollowRequests()
+    {
+        return $this->hasMany(UserFollow::class, 'follower_id')
                     ->where('status', 'pending');
     }
 

@@ -31,7 +31,7 @@ class TripResource extends JsonResource
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,
             'flags' => $this->flags(),
-            'sumarry' =>  $this->summary(),
+            'summary' =>  $this->summary(),
         ];
     }
 }

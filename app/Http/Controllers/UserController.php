@@ -140,7 +140,6 @@ class UserController extends Controller
 
     public function searchUsers(Request $request){
         try {
-            $this->authorize('viewAny',User::class);
             $filters = $request->only(['limit', 'search']);
             $users = $this->service->searchUsers($filters);
             return UserResource::collection($users);

@@ -12,12 +12,14 @@ use App\Policies\TripDayEventPolicy;
 use App\Models\TripDayCity;
 use App\Models\TripUser;
 use App\Models\User;
+use App\Models\UserFollow;
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\TripDayCityPolicy;
 use App\Policies\TripDayPolicy;
 use App\Policies\TripPolicy;
 use App\Policies\TripUserPolicy;
+use App\Policies\UserFollowPolicy;
 use App\Policies\UserPolicy;
 
 class AuthServiceProvider extends ServiceProvider
@@ -31,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class        =>  UserPolicy::class,
         Role::class        =>  RolePolicy::class,
         Permission::class  =>  PermissionPolicy::class,
+        UserFollow::class => UserFollowPolicy::class,
 
     ];
 

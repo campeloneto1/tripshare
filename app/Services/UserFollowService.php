@@ -5,13 +5,16 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserFollow;
 use App\Repositories\UserFollowRepository;
+use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class UserFollowService
 {
     public function __construct(
-        private UserFollowRepository $repository) {}
+        private UserFollowRepository $repository,
+        private UserRepository $userRepository
+        ) {}
 
     public function list(array $filters)
     {
@@ -36,6 +39,14 @@ class UserFollowService
 
             if ($existing) {
                 throw new \InvalidArgumentException('Você já está seguindo este usuário.');
+            }
+
+            $following = $this->userRepository->find($data['following_id']);
+
+            if($following->is_public){
+                $data['status'] = 'accepted';
+                $data['accepted_at'] = now();
+                
             }
 
             return $this->repository->create($data);

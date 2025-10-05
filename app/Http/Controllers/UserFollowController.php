@@ -8,9 +8,12 @@ use App\Http\Resources\UserFollowResource;
 use App\Models\User;
 use App\Models\UserFollow;
 use App\Services\UserFollowService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 
 class UserFollowController extends Controller
 {
+    use AuthorizesRequests;
      public function __construct(private UserFollowService $service) {}
 
     /**
@@ -53,7 +56,7 @@ class UserFollowController extends Controller
             $data = $request->validated();
 
             // Validação: não pode seguir a si mesmo
-            if ($data['following_id'] == auth()->id()) {
+            if ($data['following_id'] == Auth::id()) {
                 return response()->json(['error' => 'Você não pode seguir a si mesmo.'], 400);
             }
 

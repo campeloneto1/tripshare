@@ -80,7 +80,7 @@ class UserRepository
 
     public function searchUser(array $query)
     {
-        $builder = $this->baseQuery()->where('is_public', true)->where('role_id', 2);
+        $builder = $this->baseQuery()->where('role_id', 2);
 
         if (!empty($query['search'])) {
             $this->filterSearch($builder, $query['search']);

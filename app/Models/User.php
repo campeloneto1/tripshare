@@ -139,4 +139,13 @@ class User extends Authenticatable
         // Gera o avatar com as iniciais (usando ui-avatars.com)
         return "https://ui-avatars.com/api/?name={$name}&background=random&color=fff&size=256";
     }
+
+    public function summary(){
+        return [
+            'following' => $this->following()->count(),
+            'followers' => $this->followers()->count(),
+            'trips' => $this->trips()->count(),
+            'tripsParticipating' => $this->tripsParticipating()->count()
+        ];
+    }
 }

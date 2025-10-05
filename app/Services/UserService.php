@@ -47,6 +47,8 @@ class UserService
             }
         }]);
 
+        $user->load(['following', 'followers']);
+
         return $user;
     }
 

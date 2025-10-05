@@ -21,10 +21,14 @@ class TripDayEvent extends Model
         return $this->belongsTo(TripDayCity::class, 'trip_day_city_id');
     }
 
+    public function tripDay() {
+        return $this->hasOneThrough(TripDay::class, TripDayCity::class, 'id', 'id', 'trip_day_city_id', 'trip_day_id');
+    }
+
     public function creator() {
         return $this->belongsTo(User::class, 'created_by');
     }
-    
+
     public function updater() {
         return $this->belongsTo(User::class, 'updated_by');
     }

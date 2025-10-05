@@ -55,7 +55,7 @@ class TripDayEventController extends Controller
     public function store(StoreTripDayEventRequest $request, Trip $trip, TripDay $day, TripDayCity $city)
     {
         try {
-            $this->authorize('create', [$city, TripDayEvent::class]);
+            $this->authorize('create', [TripDayEvent::class, $city]);
             $data = $request->validated();
             $data['trip_day_city_id'] = $city->id;
 
@@ -77,7 +77,7 @@ class TripDayEventController extends Controller
     public function update(UpdateTripDayEventRequest $request, Trip $trip, TripDay $day, TripDayCity $city, TripDayEvent $event)
     {
         try {
-            $this->authorize('update', [$city, $event]);
+            $this->authorize('update', [$event, $city]);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }
@@ -100,7 +100,7 @@ class TripDayEventController extends Controller
     public function destroy(Trip $trip, TripDay $day, TripDayCity $city, TripDayEvent $event)
     {
         try {
-            $this->authorize('delete', [$city, $event]);
+            $this->authorize('delete', [$event, $city]);
             if ($day->trip_id !== $trip->id) {
                 return response()->json(['error' => 'Trip day does not belong to this trip.'], 403);
             }

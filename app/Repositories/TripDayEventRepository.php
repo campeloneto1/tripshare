@@ -41,4 +41,34 @@ class TripDayEventRepository
         return $this->all()->where($column, $value);
     }
 
+    public function hasTimeConflict(int $tripDayCityId, string $startTime, string $endTime, ?int $excludeEventId = null): bool
+    {
+        $query = $this->baseQuery()
+            ->where('trip_day_city_id', $tripDayCityId)
+            ->where(function ($q) use ($startTime, $endTime) {
+                // Verifica se há sobreposição de horários
+                $q->where(function ($subQ) use ($startTime, $endTime) {
+                    // Evento começa durante outro evento
+                    $subQ->where('start_time', '<=', $startTime)
+                         ->where('end_time', '>', $startTime);
+                })
+                ->orWhere(function ($subQ) use ($startTime, $endTime) {
+                    // Evento termina durante outro evento
+                    $subQ->where('start_time', '<', $endTime)
+                         ->where('end_time', '>=', $endTime);
+                })
+                ->orWhere(function ($subQ) use ($startTime, $endTime) {
+                    // Evento engloba outro evento
+                    $subQ->where('start_time', '>=', $startTime)
+                         ->where('end_time', '<=', $endTime);
+                });
+            });
+
+        if ($excludeEventId) {
+            $query->where('id', '!=', $excludeEventId);
+        }
+
+        return $query->exists();
+    }
+
 }

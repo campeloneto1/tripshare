@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Trip extends Model
 {
@@ -54,5 +55,24 @@ class Trip extends Model
 
     public function updater() {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function flags(){
+        $user = Auth::user();
+        return [
+            'is_owner' => $user->id === $this->user_id,
+            'is_admin' => $this->users()->where('user_id', $user->id)->where('role', 'admin')->exists(),
+            'is_participant' => $this->users()->where('user_id', $user->id)->where('role', 'participant')->exists(),
+            'is_visitant' => $this->is_public && !$this->users()->where('user_id', $user->id)->exists() && $user->id !== $this->user_id,
+        ];
+    }
+
+    public function summary(){
+        return [
+            'total_days' => (int) $this->days->count(),
+            'total_cities' => (int) $this->days->sum(fn($day) => $day->cities->count()),
+            'total_events' => (int)  $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->count())),
+            'total_value' => (float) $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->sum('price'))),
+        ];
     }
 }

@@ -14,7 +14,6 @@ class StoreTripDayRequest extends BaseRequest
      public function rules(): array
     {
         return [
-            'trip_id' => ['required', 'exists:trips,id'],
             'date' => ['required', 'date'],
         ];
     }
@@ -22,8 +21,6 @@ class StoreTripDayRequest extends BaseRequest
      public function messages(): array
     {
         return [
-            'trip_id.required' => 'A viagem é obrigatória.',
-            'trip_id.exists' => 'A viagem selecionada não existe.',
             'date.required' => 'A data é obrigatória.',
             'date.date' => 'Informe uma data válida.',
         ];

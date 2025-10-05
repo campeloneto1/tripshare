@@ -30,18 +30,8 @@ class TripResource extends JsonResource
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,
-            'flags' => [
-                'is_owner' => $user->id === $this->user_id,
-                'is_admin' => $this->users() ->where('user_id', $user->id)->where('role', 'admin')->exists(),
-                'is_participant' => $this->users()->where('user_id', $user->id)->where('role', 'participant')->exists(),
-                'is_visitant' => $this->is_public && !$this->users()->where('user_id', $user->id)->exists() && $user->id !== $this->user_id,
-            ],
-            'sumarry' => [
-                'total_days' => (int) $this->days->count(),
-                'total_cities' => (int) $this->days->sum(fn($day) => $day->cities->count()),
-                'total_events' => (int)  $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->count())),
-                'total_value' => (float) $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->sum('value'))),
-            ],
+            'flags' => $this->flags(),
+            'sumarry' =>  $this->summary(),
         ];
     }
 }

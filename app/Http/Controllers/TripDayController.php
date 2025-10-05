@@ -54,7 +54,7 @@ class TripDayController extends Controller
     public function store(StoreTripDayRequest $request, Trip $trip)
     {
         try {
-            $this->authorize('create', $trip);
+            $this->authorize('create', [TripDay::class, $trip]);
             $data = $request->validated();
             $data['trip_id'] = $trip->id;
 

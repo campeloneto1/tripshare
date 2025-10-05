@@ -12,7 +12,6 @@ class StoreTripDayEventRequest extends BaseRequest
     public function rules(): array
     {
        return [
-            'trip_day_city_id' => 'required|exists:trips_days_cities,id',
             'name' => 'required|string|max:255',
             'type' => 'required|in:hotel,restaurant,attraction,transport,other',
             'lat' => 'nullable|numeric|between:-90,90',
@@ -31,8 +30,6 @@ class StoreTripDayEventRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'trip_day_city_id.required' => 'O ID da cidade do dia é obrigatório.',
-            'trip_day_city_id.exists' => 'A cidade do dia informada não existe.',
             'name.required' => 'O nome do evento é obrigatório.',
             'name.max' => 'O nome do evento não pode ter mais de 255 caracteres.',
             'type.required' => 'O tipo do evento é obrigatório.',

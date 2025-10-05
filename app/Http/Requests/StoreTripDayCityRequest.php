@@ -12,7 +12,6 @@ class StoreTripDayCityRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'trip_day_id' => 'required|exists:trips_days,id',
             'city_name' => 'required|string|max:255',
             'lat' => 'required|numeric|between:-90,90',
             'lon' => 'required|numeric|between:-180,180',
@@ -25,8 +24,6 @@ class StoreTripDayCityRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'trip_day_id.required' => 'O ID do dia da viagem é obrigatório.',
-            'trip_day_id.exists' => 'O dia da viagem informado não existe.',
             'city_name.required' => 'O nome da cidade é obrigatório.',
             'city_name.max' => 'O nome da cidade não pode ter mais de 255 caracteres.',
             'lat.required' => 'A latitude é obrigatória.',

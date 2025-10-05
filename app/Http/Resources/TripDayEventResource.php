@@ -26,6 +26,12 @@ class TripDayEventResource extends JsonResource
             'end_time' => $this->end_time,
             'order' => $this->order,
             'notes' => $this->notes,
+            'price' => $this->price,
+            'currency' => $this->currency,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,  
+            'updated_at' => $this->updated_at,
         ];
     }
 }

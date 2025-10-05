@@ -20,7 +20,6 @@ class StoreTripUserRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'trip_id' => 'required|exists:trips,id',
             'user_id' => 'required|exists:users,id',
             'role' => 'required|in:admin,participant',
         ];
@@ -29,8 +28,6 @@ class StoreTripUserRequest extends BaseRequest
      public function messages(): array
     {
         return [
-            'trip_id.required' => 'O ID da viagem é obrigatório.',
-            'trip_id.exists' => 'A viagem informada não existe.',
             'user_id.required' => 'O ID do usuário é obrigatório.',
             'user_id.exists' => 'O usuário informado não existe.',
             'role.required' => 'O papel do usuário é obrigatório.',

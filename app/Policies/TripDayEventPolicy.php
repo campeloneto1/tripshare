@@ -31,25 +31,25 @@ class TripDayEventPolicy
 
     public function view(User $user, TripDayEvent $tripDayEvent): bool
     {
-        $trip = $tripDayEvent->tripDay->trip;
+        $trip = $tripDayEvent->city->day->trip;
         return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
     public function create(User $user, TripDayCity $city): bool
     {
-        $trip = $city->tripDay->trip;
+        $trip = $city->day->trip;
         return $this->canManageTrip($user, $trip);
     }
 
-    public function update(User $user, TripDayCity $city, TripDayEvent $event): bool
+    public function update(User $user, TripDayEvent $event, TripDayCity $city): bool
     {
-        $trip = $city->tripDay->trip;
+        $trip = $city->day->trip;
         return $this->canManageTrip($user, $trip);
     }
 
-    public function delete(User $user, TripDayCity $city, TripDayEvent $event): bool
+    public function delete(User $user, TripDayEvent $event, TripDayCity $city): bool
     {
-        $trip = $city->tripDay->trip;
+        $trip = $city->day->trip;
         return $this->canManageTrip($user, $trip);
     }
 

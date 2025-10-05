@@ -43,7 +43,7 @@ class TripDayCityPolicy
      */
     public function view(User $user, TripDayCity $tripDayCity): bool
     {
-        $trip = $tripDayCity->tripDay->trip;
+        $trip = $tripDayCity->day->trip;
         return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
@@ -61,7 +61,7 @@ class TripDayCityPolicy
      */
     public function update(User $user, TripDayCity $tripDayCity): bool
     {
-        return $this->canManageTrip($user, $tripDayCity->tripDay->trip);
+        return $this->canManageTrip($user, $tripDayCity->day->trip);
     }
 
     /**
@@ -69,7 +69,7 @@ class TripDayCityPolicy
      */
     public function delete(User $user, TripDayCity $tripDayCity): bool
     {
-        return $this->canManageTrip($user, $tripDayCity->tripDay->trip);
+        return $this->canManageTrip($user, $tripDayCity->day->trip);
     }
 
     /**

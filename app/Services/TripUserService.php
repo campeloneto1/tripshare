@@ -3,8 +3,12 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\Trip;
 use App\Models\TripUser;
+use App\Models\User;
+use App\Notifications\AddedToTripNotification;
 use App\Repositories\TripUserRepository;
+use Illuminate\Support\Facades\Auth;
 
 class TripUserService
 {
@@ -23,7 +27,18 @@ class TripUserService
     public function store(array $data): TripUser
     {
         return DB::transaction(function () use ($data) {
-            return $this->repository->create($data);
+            $tripUser = $this->repository->create($data);
+
+            // Notifica o usuário adicionado
+            $user = User::find($data['user_id']);
+            $trip = Trip::find($data['trip_id']);
+            $addedBy = Auth::user();
+
+            if ($user && $trip && $addedBy && $user->id !== $addedBy->id) {
+                $user->notify(new AddedToTripNotification($trip, $addedBy));
+            }
+
+            return $tripUser;
         });
     }
 

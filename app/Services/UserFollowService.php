@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\UserFollow;
+use App\Notifications\FollowAcceptedNotification;
+use App\Notifications\FollowRequestNotification;
 use App\Repositories\UserFollowRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
@@ -42,11 +44,17 @@ class UserFollowService
             }
 
             $following = $this->userRepository->find($data['following_id']);
+            $follower = Auth::user();
 
             if($following->is_public){
                 $data['status'] = 'accepted';
                 $data['accepted_at'] = now();
-                
+
+                // Notifica que foi aceito automaticamente
+                $follower->notify(new FollowAcceptedNotification($following));
+            } else {
+                // Notifica que recebeu pedido de follow
+                $following->notify(new FollowRequestNotification($follower));
             }
 
             return $this->repository->create($data);
@@ -56,7 +64,17 @@ class UserFollowService
     public function update(UserFollow $userFollow, array $data): UserFollow
     {
         return DB::transaction(function () use ($userFollow, $data) {
-            return $this->repository->update($userFollow, $data);
+            $updated = $this->repository->update($userFollow, $data);
+
+            // Se o status mudou para accepted, notifica o seguidor
+            if (isset($data['status']) && $data['status'] === 'accepted' && $userFollow->status !== 'accepted') {
+                $follower = $this->userRepository->find($userFollow->follower_id);
+                $following = $this->userRepository->find($userFollow->following_id);
+
+                $follower->notify(new FollowAcceptedNotification($following));
+            }
+
+            return $updated;
         });
     }
 

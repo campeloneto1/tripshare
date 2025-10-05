@@ -12,6 +12,7 @@ use App\Http\Controllers\TripDayController;
 use App\Http\Controllers\TripDayEventController;
 use App\Http\Controllers\TripUserController;
 use App\Http\Controllers\UserFollowController;
+use App\Http\Controllers\NotificationController;
 
 // Teste rápido
 Route::get('teste', function () {
@@ -43,6 +44,15 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);
     Route::post('roles/{role}/permissions/sync', [RoleController::class, 'syncPermissions']);
+
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('unread', [NotificationController::class, 'unread']);
+        Route::post('mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::post('{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::delete('{id}', [NotificationController::class, 'destroy']);
+    });
 
      // Places API com rate limiting mais restritivo (API externa)
      Route::prefix('places')->middleware('throttle:30,1')->group(function () {

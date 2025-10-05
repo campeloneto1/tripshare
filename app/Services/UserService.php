@@ -14,6 +14,13 @@ class UserService
 
     public function list(array $filters)
     {
+        $user = $filters['user'] ?? null;
+        unset($filters['user']);
+
+        if ($user && $user->role_id === 2) {
+            $filters['role_id'] = 2;
+        }
+
         return $this->repository->all($filters);
     }
 
@@ -24,8 +31,17 @@ class UserService
 
     public function find(int $id): ?User
     {
-        $loggedId = Auth::id();
+        $loggedUser = Auth::user();
+        $loggedId = $loggedUser->id;
         $user = $this->repository->find($id);
+
+        if (!$user) {
+            return null;
+        }
+
+        if ($loggedUser->role_id === 2 && $user->role_id !== 2) {
+            throw new \Exception('Você não tem permissão para visualizar este usuário', 403);
+        }
 
         $user->load(['trips' => function ($query) use ($loggedId, $id) {
             if ($loggedId !== $id) {
@@ -85,8 +101,4 @@ class UserService
         return DB::transaction(fn() => $this->repository->forceDelete($user));
     }
 
-    public function searchUsers(array $query)
-    {
-        return $this->repository->searchUser($query);
-    }
 }

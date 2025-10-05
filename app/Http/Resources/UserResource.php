@@ -14,6 +14,11 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $loggedUser = $request->user();
+        $isOwner = $loggedUser && $loggedUser->id === $this->id;
+        $showRelationships = $this->is_public || $isOwner;
+        $is_admin = $loggedUser->is_admin();
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -23,16 +28,17 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'email_verified_at' => $this->email_verified_at,
             'role_id' => $this->role_id,
-            'role' => RoleResource::make($this->whenLoaded('role')),
-            'trips' => TripResource::collection($this->whenLoaded('trips')),
-            'trips_participating' => TripResource::collection($this->whenLoaded('tripsParticipating')),
+            'role' => $is_admin ? RoleResource::make($this->whenLoaded('role')) : null,
+            'trips' => $showRelationships ? TripResource::collection($this->whenLoaded('trips')) : null,
+            'trips_participating' => $showRelationships ? TripResource::collection($this->whenLoaded('tripsParticipating')) : null,
             'is_public' => $this->is_public,
             'avatar' => $this->getAvatar(),
             'bio' => $this->bio,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,
-            'summary' => $this->summary(),
+            'summary' =>  $this->summary(),
+            'flags' => $this->flags(),
         ];
     }
 }

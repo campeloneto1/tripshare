@@ -29,8 +29,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
         Route::get('profile', [AuthController::class, 'user']);
     });
 
-    Route::get('search', [UserController::class, 'searchUsers']);
-
     Route::apiResources([
         'users' => UserController::class,
         'users.follows' => UserFollowController::class,

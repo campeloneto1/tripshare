@@ -20,6 +20,7 @@ class UserController extends Controller
         try {
              $this->authorize('viewAny',User::class);
             $filters = $request->only(['limit', 'search']);
+            $filters['user'] = $request->user();
             $users = $this->service->list($filters);
             return UserResource::collection($users);
         } catch (\Exception $e) {
@@ -138,13 +139,4 @@ class UserController extends Controller
         }
     }
 
-    public function searchUsers(Request $request){
-        try {
-            $filters = $request->only(['limit', 'search']);
-            $users = $this->service->searchUsers($filters);
-            return UserResource::collection($users);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
 }

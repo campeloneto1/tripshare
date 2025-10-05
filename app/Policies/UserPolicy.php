@@ -13,7 +13,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('list_usuarios');
+        return $user->hasPermission('list_usuarios') || $user->role_id === 2;
     }
 
     /**
@@ -21,7 +21,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->hasPermission('list_usuarios');
+        return $user->hasPermission('list_usuarios') || $user->role_id === 2;
     }
 
     /**

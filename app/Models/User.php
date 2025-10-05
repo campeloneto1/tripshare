@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -75,6 +76,11 @@ class User extends Authenticatable
     public function hasPermission(string $permissionName): bool
     {
         return $this->role && $this->role->permissions->contains('name', $permissionName);
+    }
+
+    public function is_admin(): bool
+    {
+        return $this->role && $this->role->id === 1;
     }
 
     public function trips(){
@@ -146,6 +152,19 @@ class User extends Authenticatable
             'followers' => $this->followers()->count(),
             'trips' => $this->trips()->count(),
             'tripsParticipating' => $this->tripsParticipating()->count()
+        ];
+    }
+
+    public function flags(){
+        $isOwner = auth()->check() && auth()->user()->id === $this->id;
+
+        return [
+            'is_admin' => $this->is_admin(),
+            'is_owner' => $isOwner,
+            'is_following' => !$isOwner && auth()->check() && auth()->user()->following()->where('following_id', $this->id)->exists(),
+            'is_followed_by' => !$isOwner && auth()->check() && $this->following()->where('following_id', auth()->user()->id)->exists(),
+            'has_pending_follow_request' => !$isOwner && auth()->check() && auth()->user()->sentFollowRequests()->where('following_id', $this->id)->exists(),
+            'has_received_follow_request' => !$isOwner && auth()->check() && $this->pendingFollowRequests()->where('follower_id', auth()->user()->id)->exists(),
         ];
     }
 }

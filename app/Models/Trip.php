@@ -60,6 +60,7 @@ class Trip extends Model
 
     public function flags(){
         $user = Auth::user();
+
         return [
             'is_owner' => $user->id === $this->user_id,
             'is_admin' => $this->users()->where('user_id', $user->id)->where('role', 'admin')->exists(),

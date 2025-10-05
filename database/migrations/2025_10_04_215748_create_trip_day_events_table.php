@@ -25,6 +25,9 @@ return new class extends Migration
             $table->integer('order')->default(1);
             $table->text('notes')->nullable();
 
+            $table->decimal('price', 10, 2)->nullable();
+            $table->string('currency', 3)->default('BRL');
+
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();

@@ -9,7 +9,28 @@ use Illuminate\Auth\Access\Response;
 class TripUserPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Verifica se o usuário tem acesso à viagem (dono ou participante)
+     */
+    private function canAccessTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id
+            || $trip->users()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar a viagem (dono ou admin)
+     */
+    private function canManageTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id
+            || $trip->users()
+                ->where('user_id', $user->id)
+                ->where('role', 'admin')
+                ->exists();
+    }
+
+    /**
+     * Pode listar usuários da viagem (qualquer usuário logado)
      */
     public function viewAny(User $user): bool
     {
@@ -17,39 +38,41 @@ class TripUserPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Pode visualizar se a viagem for pública ou o usuário tiver acesso
      */
     public function view(User $user, TripUser $tripUser): bool
     {
-        return true;
+        $trip = $tripUser->trip;
+        return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can create models.
+     * Pode adicionar um usuário à viagem se for dono ou admin
      */
-    public function create(User $user): bool
+    public function create(User $user, TripUser $tripUser): bool
     {
-        return true;
+        $trip = $tripUser->trip;
+        return $this->canManageTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Pode atualizar informações do usuário na viagem (ex: mudar role) se for dono ou admin
      */
     public function update(User $user, TripUser $tripUser): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripUser->trip);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Pode remover um usuário da viagem se for dono ou admin
      */
     public function delete(User $user, TripUser $tripUser): bool
     {
-        return $user->id === $tripUser->trip->user_id;
+        return $this->canManageTrip($user, $tripUser->trip);
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Restaurar - não permitido
      */
     public function restore(User $user, TripUser $tripUser): bool
     {
@@ -57,7 +80,7 @@ class TripUserPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Excluir permanentemente - não permitido
      */
     public function forceDelete(User $user, TripUser $tripUser): bool
     {

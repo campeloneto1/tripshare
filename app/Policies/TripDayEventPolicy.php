@@ -9,7 +9,28 @@ use Illuminate\Auth\Access\Response;
 class TripDayEventPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Verifica se o usuário tem acesso à viagem (dono ou participante)
+     */
+    private function canAccessTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar a viagem (dono ou admin)
+     */
+    private function canManageTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()
+                ->where('user_id', $user->id)
+                ->where('role', 'admin')
+                ->exists();
+    }
+
+    /**
+     * Pode listar eventos (qualquer usuário logado)
      */
     public function viewAny(User $user): bool
     {
@@ -17,49 +38,51 @@ class TripDayEventPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Pode visualizar o evento se a viagem for pública ou o usuário tiver acesso à viagem
      */
-    public function view(User $user, TripDayEvent $tripDayEvents): bool
+    public function view(User $user, TripDayEvent $tripDayEvent): bool
     {
-        return true;
+        $trip = $tripDayEvent->tripDay->trip;
+        return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can create models.
+     * Pode criar um evento se for dono ou admin da viagem
      */
-    public function create(User $user): bool
+    public function create(User $user, TripDayEvent $tripDayEvent): bool
     {
-        return true;
+        $trip = $tripDayEvent->tripDay->trip;
+        return $this->canManageTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Pode atualizar o evento se for dono ou admin da viagem
      */
-    public function update(User $user, TripDayEvent $tripDayEvents): bool
+    public function update(User $user, TripDayEvent $tripDayEvent): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDayEvent->tripDay->trip);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Pode excluir o evento se for dono ou admin da viagem
      */
-    public function delete(User $user, TripDayEvent $tripDayEvents): bool
+    public function delete(User $user, TripDayEvent $tripDayEvent): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDayEvent->tripDay->trip);
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Restaurar - não permitido
      */
-    public function restore(User $user, TripDayEvent $tripDayEvents): bool
+    public function restore(User $user, TripDayEvent $tripDayEvent): bool
     {
         return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Excluir permanentemente - não permitido
      */
-    public function forceDelete(User $user, TripDayEvent $tripDayEvents): bool
+    public function forceDelete(User $user, TripDayEvent $tripDayEvent): bool
     {
         return false;
     }

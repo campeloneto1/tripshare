@@ -9,7 +9,28 @@ use Illuminate\Auth\Access\Response;
 class TripDayCityPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Verifica se o usuário tem acesso à viagem (dono ou participante)
+     */
+    private function canAccessTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Verifica se o usuário pode gerenciar a viagem (dono ou admin)
+     */
+    private function canManageTrip(User $user, $trip): bool
+    {
+        return $user->id === $trip->user_id 
+            || $trip->users()
+                ->where('user_id', $user->id)
+                ->where('role', 'admin')
+                ->exists();
+    }
+
+    /**
+     * Pode listar cidades do dia (qualquer usuário logado)
      */
     public function viewAny(User $user): bool
     {
@@ -17,39 +38,41 @@ class TripDayCityPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Pode ver a cidade se a viagem for pública ou se tiver acesso à viagem
      */
     public function view(User $user, TripDayCity $tripDayCity): bool
     {
-        return true;
+        $trip = $tripDayCity->tripDay->trip;
+        return $trip->is_public || $this->canAccessTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can create models.
+     * Pode criar uma cidade no dia se for dono ou admin da viagem
      */
-    public function create(User $user): bool
+    public function create(User $user, TripDayCity $tripDayCity): bool
     {
-        return true;
+        $trip = $tripDayCity->tripDay->trip;
+        return $this->canManageTrip($user, $trip);
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Pode atualizar se for dono ou admin da viagem
      */
     public function update(User $user, TripDayCity $tripDayCity): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDayCity->tripDay->trip);
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Pode excluir se for dono ou admin da viagem
      */
     public function delete(User $user, TripDayCity $tripDayCity): bool
     {
-        return true;
+        return $this->canManageTrip($user, $tripDayCity->tripDay->trip);
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Restaurar - não permitido
      */
     public function restore(User $user, TripDayCity $tripDayCity): bool
     {
@@ -57,7 +80,7 @@ class TripDayCityPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Excluir permanentemente - não permitido
      */
     public function forceDelete(User $user, TripDayCity $tripDayCity): bool
     {

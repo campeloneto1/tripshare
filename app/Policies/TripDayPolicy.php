@@ -59,11 +59,11 @@ class TripDayPolicy
 
     public function restore(User $user, TripDay $tripDay): bool
     {
-        return $this->canManageTrip($user, $tripDay->trip);
+        return false;
     }
 
     public function forceDelete(User $user, TripDay $tripDay): bool
     {
-        return $user->id === $tripDay->trip->user_id; // Só o dono
+        return false; // Só o dono
     }
 }

@@ -20,6 +20,7 @@ class TripDayResource extends JsonResource
             'trip' => TripResource::make($this->whenLoaded('trip')),
             'date' => $this->date,
             'cities' => TripDayCityResource::collection($this->whenLoaded('cities')),
+            'summary' => $this->summary(),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             

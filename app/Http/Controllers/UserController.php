@@ -137,4 +137,15 @@ class UserController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function searchUsers(Request $request){
+        try {
+            $this->authorize('viewAny',User::class);
+            $filters = $request->only(['limit', 'search']);
+            $users = $this->service->searchUsers($filters);
+            return UserResource::collection($users);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

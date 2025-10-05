@@ -45,5 +45,25 @@ class TripDayCity extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function summary(){
+        return [
+            'total_events' => (int) $this->events->count(),
+            'total_value' => (float) $this->events->sum('price'),
+            'total_events_by_type' => [
+                'hotel' => $this->events->where('type', 'hotel')->count(),
+                'restaurant' => $this->events->where('type', 'restaurant')->count(),
+                'attraction' => $this->events->where('type', 'attraction')->count(),
+                'transport' => $this->events->where('type', 'transport')->count(),
+                'other' => $this->events->where('type', 'other')->count(),
+            ],
+            'total_value_by_type' => [
+                'hotel' => (float) $this->events->where('type', 'hotel')->sum('price'),
+                'restaurant' => (float) $this->events->where('type', 'restaurant')->sum('price'),
+                'attraction' => (float) $this->events->where('type', 'attraction')->sum('price'),
+                'transport' => (float) $this->events->where('type', 'transport')->sum('price'),
+                'other' => (float) $this->events->where('type', 'other')->sum('price'),
+            ],
+        ];
+    }
 
 }

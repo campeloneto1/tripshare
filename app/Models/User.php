@@ -26,6 +26,8 @@ class User extends Authenticatable
         'cpf',
         'phone',
         'password',
+        'role_id',
+        'is_public',
     ];
 
     /**
@@ -54,6 +56,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role_id' => 'integer',
+            'is_public' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',

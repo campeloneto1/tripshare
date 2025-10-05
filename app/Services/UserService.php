@@ -82,4 +82,9 @@ class UserService
     {
         return DB::transaction(fn() => $this->repository->forceDelete($user));
     }
+
+    public function searchUsers(array $query)
+    {
+        return $this->repository->searchUser($query);
+    }
 }

@@ -68,11 +68,29 @@ class Trip extends Model
     }
 
     public function summary(){
+        $allEvents = $this->days->flatMap(fn($day) =>
+            $day->cities->flatMap(fn($city) => $city->events)
+        );
+
         return [
             'total_days' => (int) $this->days->count(),
             'total_cities' => (int) $this->days->sum(fn($day) => $day->cities->count()),
-            'total_events' => (int)  $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->count())),
-            'total_value' => (float) $this->days->sum(fn($day) => $day->cities->sum(fn($city) => $city->events->sum('price'))),
+            'total_events' => (int) $allEvents->count(),
+            'total_value' => (float) $allEvents->sum('price'),
+            'total_events_by_type' => [
+                'hotel' => $allEvents->where('type', 'hotel')->count(),
+                'restaurant' => $allEvents->where('type', 'restaurant')->count(),
+                'attraction' => $allEvents->where('type', 'attraction')->count(),
+                'transport' => $allEvents->where('type', 'transport')->count(),
+                'other' => $allEvents->where('type', 'other')->count(),
+            ],
+            'total_value_by_type' => [
+                'hotel' => (float) $allEvents->where('type', 'hotel')->sum('price'),
+                'restaurant' => (float) $allEvents->where('type', 'restaurant')->sum('price'),
+                'attraction' => (float) $allEvents->where('type', 'attraction')->sum('price'),
+                'transport' => (float) $allEvents->where('type', 'transport')->sum('price'),
+                'other' => (float) $allEvents->where('type', 'other')->sum('price'),
+            ],
         ];
     }
 }

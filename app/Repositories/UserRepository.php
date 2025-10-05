@@ -78,6 +78,20 @@ class UserRepository
         return $user->forceDelete();
     }
 
+    public function searchUser(array $query)
+    {
+        $builder = $this->baseQuery()->where('is_public', true)->where('role_id', 2);
+
+        if (!empty($query['search'])) {
+            $this->filterSearch($builder, $query['search']);
+        }
+
+        if (!empty($query['limit']) && is_numeric($query['limit'])) {
+            return $builder->paginate((int)$query['limit']);
+        }
+        return $builder->get();
+    }
+
     public function filterSearch(Builder $query, string $search)
     {
         $query->where(function($q) use ($search) {

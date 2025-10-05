@@ -43,4 +43,28 @@ class TripDay extends Model
     public function updater() {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function summary(){
+        $allEvents = $this->cities->flatMap(fn($city) => $city->events);
+
+        return [
+            'total_cities' => (int) $this->cities->count(),
+            'total_events' => (int) $allEvents->count(),
+            'total_value' => (float) $allEvents->sum('price'),
+            'total_events_by_type' => [
+                'hotel' => $allEvents->where('type', 'hotel')->count(),
+                'restaurant' => $allEvents->where('type', 'restaurant')->count(),
+                'attraction' => $allEvents->where('type', 'attraction')->count(),
+                'transport' => $allEvents->where('type', 'transport')->count(),
+                'other' => $allEvents->where('type', 'other')->count(),
+            ],
+            'total_value_by_type' => [
+                'hotel' => (float) $allEvents->where('type', 'hotel')->sum('price'),
+                'restaurant' => (float) $allEvents->where('type', 'restaurant')->sum('price'),
+                'attraction' => (float) $allEvents->where('type', 'attraction')->sum('price'),
+                'transport' => (float) $allEvents->where('type', 'transport')->sum('price'),
+                'other' => (float) $allEvents->where('type', 'other')->sum('price'),
+            ],
+        ];
+    }
 }

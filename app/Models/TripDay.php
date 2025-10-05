@@ -19,6 +19,14 @@ class TripDay extends Model
         'updated_by'
     ];
 
+    protected $casts = [
+        'date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    protected $with = ['cities'];
+
     public function trip()
     {
         return $this->belongsTo(Trip::class);

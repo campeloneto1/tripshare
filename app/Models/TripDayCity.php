@@ -13,7 +13,25 @@ class TripDayCity extends Model
     protected $table = 'trips_days_cities';
 
 
-    protected $fillable = ['trip_day_id','city_name','lat','lon','osm_id','country_code','order', 'created_by', 'updated_by'];
+    protected $fillable = [
+        'trip_day_id',
+        'city_name',
+        'lat',
+        'lon',
+        'osm_id',
+        'country_code',
+        'order', 
+        'created_by', 
+        'updated_by'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+
+    ];
+
+    protected $with = ['events'];
 
     public function events() {
         return $this->hasMany(TripDayEvent::class)->orderBy('order');

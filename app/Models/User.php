@@ -28,6 +28,8 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_public',
+        'avatar',
+        'bio',
     ];
 
     /**
@@ -83,5 +85,36 @@ class User extends Authenticatable
         return $this->belongsToMany(Trip::class, 'trips_users')
                     ->withPivot('role')
                     ->withTimestamps();
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(UserFollow::class, 'following_id')
+                    ->where('status', 'accepted');
+    }
+
+    public function following()
+    {
+        return $this->hasMany(UserFollow::class, 'follower_id')
+                    ->where('status', 'accepted');
+    }
+
+    public function pendingRequests()
+    {
+        return $this->hasMany(UserFollow::class, 'following_id')
+                    ->where('status', 'pending');
+    }
+
+    public function getAvatar()
+{
+        if ($this->avatar) {
+            return url("storage/avatars/{$this->avatar}");
+        }
+
+        // Gera o nome para o fallback
+        $name = urlencode($this->name ?? 'User');
+
+        // Gera o avatar com as iniciais (usando ui-avatars.com)
+        return "https://ui-avatars.com/api/?name={$name}&background=random&color=fff&size=256";
     }
 }

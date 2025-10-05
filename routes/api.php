@@ -11,6 +11,7 @@ use App\Http\Controllers\TripDayCityController;
 use App\Http\Controllers\TripDayController;
 use App\Http\Controllers\TripDayEventController;
 use App\Http\Controllers\TripUserController;
+use App\Http\Controllers\UserFollowController;
 
 // Teste rápido
 Route::get('teste', function () {
@@ -30,6 +31,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
 
     Route::apiResources([
         'users' => UserController::class,
+        'users.follows' => UserFollowController::class,
         'roles' => RoleController::class,
         'permissions' => PermissionController::class,
         'trips' => TripController::class,

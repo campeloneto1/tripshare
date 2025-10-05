@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->boolean('is_public')->default(true);
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('avatar', 150)->nullable();
+            $table->text('bio')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

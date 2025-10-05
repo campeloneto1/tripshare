@@ -27,6 +27,8 @@ class UserResource extends JsonResource
             'trips' => TripResource::collection($this->whenLoaded('trips')),
             'trips_participating' => TripResource::collection($this->whenLoaded('tripsParticipating')),
             'is_public' => $this->is_public,
+            'avatar' => $this->getAvatar(),
+            'bio' => $this->bio,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,

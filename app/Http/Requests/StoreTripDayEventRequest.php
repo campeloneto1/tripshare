@@ -11,8 +11,8 @@ class StoreTripDayEventRequest extends BaseRequest
 
     public function rules(): array
     {
-        return [
-            'trip_day_city_id' => 'required|exists:trip_day_cities,id',
+       return [
+            'trip_day_city_id' => 'required|exists:trips_days_cities,id',
             'name' => 'required|string|max:255',
             'type' => 'required|in:hotel,restaurant,attraction,transport,other',
             'lat' => 'nullable|numeric|between:-90,90',
@@ -23,6 +23,8 @@ class StoreTripDayEventRequest extends BaseRequest
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'order' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|size:3',
         ];
     }
 
@@ -46,6 +48,10 @@ class StoreTripDayEventRequest extends BaseRequest
             'end_time.after_or_equal' => 'O horário de fim deve ser igual ou posterior ao horário de início.',
             'order.integer' => 'A ordem deve ser um número inteiro.',
             'order.min' => 'A ordem mínima é 1.',
+            'notes.string' => 'As notas devem ser uma string.',
+            'price.numeric' => 'O preço deve ser um número.',
+            'price.min' => 'O preço mínimo é 0.',
+            'currency.size' => 'A moeda deve ter exatamente 3 caracteres.',
         ];
     }
 }

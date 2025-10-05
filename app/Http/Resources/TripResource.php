@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class TripResource extends JsonResource
 {
@@ -14,6 +15,7 @@ class TripResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = Auth::user();
          return [
             'id' => $this->id,
             'name' => $this->name,
@@ -27,6 +29,12 @@ class TripResource extends JsonResource
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deleted_at,
+            'flags' => [
+                'is_owner' => $user->id === $this->user_id,
+                'is_admin' => $this->users() ->where('user_id', $user->id)->where('role', 'admin')->exists(),
+                'is_participant' => $this->users()->where('user_id', $user->id)->where('role', 'participant')->exists(),
+                'is_visitant' => $this->is_public && !$this->users()->where('user_id', $user->id)->exists() && $user->id !== $this->user_id,
+            ],
         ];
     }
 }

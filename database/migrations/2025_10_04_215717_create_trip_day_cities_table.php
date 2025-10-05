@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('trips_days_cities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trip_day_id')->constrained()->onDelete('cascade');
+            $table->foreignId('trip_day_id')->constrained('trips_days')->onDelete('cascade');
             $table->string('city_name');
             $table->decimal('lat', 10, 7);
             $table->decimal('lon', 10, 7);
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('country_code', 2)->nullable();
             $table->integer('order')->default(1);
 
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

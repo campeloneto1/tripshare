@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('trips_days_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trip_day_city_id')->constrained()->onDelete('cascade');
+            $table->foreignId('trip_day_city_id')->constrained('trips_days_cities')->onDelete('cascade');
             $table->string('name');
             $table->enum('type', ['hotel','restaurant','attraction','transport','other']);
             $table->decimal('lat', 10, 7)->nullable();
@@ -28,8 +28,8 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->nullable();
             $table->string('currency', 3)->default('BRL');
 
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

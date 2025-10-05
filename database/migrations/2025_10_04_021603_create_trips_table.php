@@ -21,8 +21,8 @@ return new class extends Migration
             $table->boolean('is_public')->default(false);
             $table->timestamps();
 
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->softDeletes();
         });
     }

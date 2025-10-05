@@ -22,6 +22,8 @@ class UpdateTripDayEventRequest extends BaseRequest
             'end_time' => 'nullable|date_format:H:i|after_or_equal:start_time',
             'order' => 'nullable|integer|min:1',
             'notes' => 'nullable|string',
+             'price' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|size:3',
         ];
     }
 
@@ -43,6 +45,9 @@ class UpdateTripDayEventRequest extends BaseRequest
             'end_time.after_or_equal' => 'O horário de fim deve ser igual ou posterior ao horário de início.',
             'order.integer' => 'A ordem deve ser um número inteiro.',
             'order.min' => 'A ordem mínima é 1.',
+            'price.numeric' => 'O preço deve ser um número.',
+            'price.min' => 'O preço mínimo é 0.',
+            'currency.size' => 'A moeda deve ter exatamente 3 caracteres.',
         ];
     }
 }

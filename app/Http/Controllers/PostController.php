@@ -43,8 +43,17 @@ class PostController extends Controller
     {
         try {
             $this->authorize('create',Post::class);
-            $post = $this->service->store($request->validated());
-             return response()->json([
+
+            $data = $request->validated();
+
+            // Adiciona os arquivos de upload
+            if ($request->hasFile('uploads')) {
+                $data['uploads'] = $request->file('uploads');
+            }
+
+            $post = $this->service->store($data);
+
+            return response()->json([
                 "message" => "Post cadastrado com sucesso",
                 "data" => PostResource::make($post)
             ], 201);
@@ -59,7 +68,16 @@ class PostController extends Controller
     {
         try {
             $this->authorize('update',$post);
-            $post = $this->service->update($post, $request->validated());
+
+            $data = $request->validated();
+
+            // Adiciona os arquivos de upload
+            if ($request->hasFile('uploads')) {
+                $data['uploads'] = $request->file('uploads');
+            }
+
+            $post = $this->service->update($post, $data);
+
             return response()->json([
                 "message" => "Post atualizado com sucesso",
                 "data" => PostResource::make($post)

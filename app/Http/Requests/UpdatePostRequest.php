@@ -17,17 +17,15 @@ class UpdatePostRequest extends FormRequest
      public function rules(): array
     {
         return [
-            'content' => ['nullable', 'string', 'max:1000'],
+            'content' => ['nullable', 'string', 'max:2000'],
             'trip_id' => ['nullable', 'exists:trips,id'],
             'shared_post_id' => ['nullable', 'exists:posts,id'],
 
-            // uploads: novos arquivos opcionais
-            'uploads' => ['nullable', 'array'],
-            'uploads.*.file' => ['required', 'file', 'mimes:jpg,jpeg,png,mp4', 'max:5120'], // até 5MB
-            'uploads.*.type' => ['required', 'in:image,video'],
-            'uploads.*.order' => ['nullable', 'integer', 'min:0'],
+            // Novos uploads
+            'uploads' => ['nullable', 'array', 'max:10'],
+            'uploads.*' => ['file', 'mimes:jpg,jpeg,png,gif,mp4,mov', 'max:10240'], // 10MB
 
-            // uploads_removidos: IDs dos uploads que devem ser apagados
+            // IDs dos uploads que devem ser removidos
             'uploads_removed' => ['nullable', 'array'],
             'uploads_removed.*' => ['integer', 'exists:uploads,id'],
         ];
@@ -36,45 +34,14 @@ class UpdatePostRequest extends FormRequest
     public function messages(): array
     {
         return [
-            // content
-            'content.string' => 'O conteúdo do post deve ser um texto válido.',
-            'content.max' => 'O conteúdo do post pode ter no máximo :max caracteres.',
-
-            // trip_id
-            'trip_id.exists' => 'A viagem selecionada não existe.',
-
-            // shared_post_id
-            'shared_post_id.exists' => 'O post que você está tentando compartilhar não existe.',
-
-            // uploads
-            'uploads.array' => 'Os uploads devem ser enviados em formato de lista.',
-            'uploads.*.file.required' => 'Cada upload deve conter um arquivo.',
-            'uploads.*.file.file' => 'O upload deve ser um arquivo válido.',
-            'uploads.*.file.mimes' => 'O arquivo deve ser uma imagem (JPG/PNG) ou vídeo (MP4).',
-            'uploads.*.file.max' => 'Cada arquivo pode ter no máximo :max kilobytes (5MB).',
-            'uploads.*.type.required' => 'Informe o tipo do arquivo (image ou video).',
-            'uploads.*.type.in' => 'O tipo do arquivo deve ser "image" ou "video".',
-            'uploads.*.order.integer' => 'A ordem deve ser um número inteiro.',
-            'uploads.*.order.min' => 'A ordem não pode ser negativa.',
-
-            // uploads removidos
-            'uploads_removed.array' => 'A lista de uploads removidos deve ser um array.',
-            'uploads_removed.*.integer' => 'Os IDs dos uploads devem ser números inteiros.',
-            'uploads_removed.*.exists' => 'Um dos uploads informados para remoção não existe.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'content' => 'conteúdo do post',
-            'trip_id' => 'viagem',
-            'shared_post_id' => 'post compartilhado',
-            'uploads' => 'uploads',
-            'uploads.*.file' => 'arquivo',
-            'uploads.*.type' => 'tipo do arquivo',
-            'uploads.*.order' => 'ordem',
-            'uploads_removed' => 'uploads removidos',
+            'content.max' => 'O conteúdo do post não pode ter mais de 2000 caracteres.',
+            'trip_id.exists' => 'A viagem selecionada é inválida.',
+            'shared_post_id.exists' => 'O post compartilhado é inválido.',
+            'uploads.max' => 'Você pode enviar no máximo 10 arquivos por post.',
+            'uploads.*.file' => 'Cada upload deve ser um arquivo válido.',
+            'uploads.*.mimes' => 'Os arquivos devem ser imagens (JPG, PNG, GIF) ou vídeos (MP4, MOV).',
+            'uploads.*.max' => 'Cada arquivo não pode ser maior que 10MB.',
+            'uploads_removed.*.exists' => 'Um dos uploads para remoção não existe.',
         ];
     }
 }

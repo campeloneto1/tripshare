@@ -42,7 +42,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
         'trips.users' => TripUserController::class,
         'users' => UserController::class,
         'users.follows' => UserFollowController::class,
-        
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

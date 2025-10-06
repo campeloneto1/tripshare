@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Repositories\PostRepository;
 use App\Services\UploadService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class PostService
 {
@@ -18,6 +19,14 @@ class PostService
     public function list(array $filters)
     {
         return $this->repository->all($filters);
+    }
+
+    /**
+     * Retorna o feed do usuário (com cache)
+     */
+    public function getFeed(int $userId, int $limit = 20)
+    {
+        return $this->repository->getFeedForUser($userId, $limit);
     }
 
     public function find(int $id): ?Post
@@ -64,6 +73,9 @@ class PostService
                 }
             }
 
+            // Invalida cache do feed do usuário
+            $this->clearUserFeedCache(Auth::id());
+
             return $post->load('uploads');
         });
     }
@@ -105,6 +117,9 @@ class PostService
                 }
             }
 
+            // Invalida cache do feed do usuário
+            $this->clearUserFeedCache($post->user_id);
+
             return $post->load('uploads');
         });
     }
@@ -112,13 +127,31 @@ class PostService
     public function delete(Post $post): bool
     {
         return DB::transaction(function () use ($post) {
+            $userId = $post->user_id;
+
             // Deleta uploads associados
             foreach ($post->uploads as $upload) {
                 $this->uploadService->delete($upload);
             }
 
-            return $this->repository->delete($post);
+            $result = $this->repository->delete($post);
+
+            // Invalida cache do feed do usuário
+            $this->clearUserFeedCache($userId);
+
+            return $result;
         });
+    }
+
+    /**
+     * Invalida o cache do feed do usuário
+     */
+    private function clearUserFeedCache(int $userId): void
+    {
+        // Limpa diferentes variações de limite
+        for ($limit = 10; $limit <= 50; $limit += 10) {
+            Cache::forget("user_feed_{$userId}_limit_{$limit}");
+        }
     }
 
     /**

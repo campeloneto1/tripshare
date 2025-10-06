@@ -32,7 +32,7 @@ class Trip extends Model
         'is_public' => 'boolean',
     ];
 
-    protected $with = ['user'];
+    // Removido eager loading global - use scopes quando necessário
 
     public function user()
     {
@@ -61,6 +61,83 @@ class Trip extends Model
     public function uploads()
     {
         return $this->morphMany(Upload::class, 'uploadable');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Carrega relações básicas
+     */
+    public function scopeWithRelations($query)
+    {
+        return $query->with([
+            'user:id,name,username,email',
+            'uploads' => fn($q) => $q->where('is_main', true),
+        ]);
+    }
+
+    /**
+     * Carrega relações completas incluindo days
+     */
+    public function scopeWithFullRelations($query)
+    {
+        return $query->withRelations()
+            ->withCount(['users', 'days'])
+            ->with([
+                'days' => fn($q) => $q->with([
+                    'cities' => fn($cq) => $cq->with('events')
+                ])
+            ]);
+    }
+
+    /**
+     * Trips públicas
+     */
+    public function scopePublic($query)
+    {
+        return $query->where('is_public', true);
+    }
+
+    /**
+     * Trips de um usuário
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Trips que o usuário participa (owner ou membro)
+     */
+    public function scopeAccessibleBy($query, $userId)
+    {
+        return $query->where(function($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhereHas('users', fn($uq) => $uq->where('user_id', $userId));
+        });
+    }
+
+    /**
+     * Trips ativas (não deletadas e com datas futuras ou presentes)
+     */
+    public function scopeActive($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('end_date')
+              ->orWhere('end_date', '>=', now());
+        });
+    }
+
+    /**
+     * Ordena por data de início
+     */
+    public function scopeOrderByStartDate($query, $direction = 'asc')
+    {
+        return $query->orderBy('start_date', $direction);
     }
 
     /**

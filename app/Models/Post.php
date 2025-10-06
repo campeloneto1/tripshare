@@ -29,7 +29,8 @@ class Post extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $with = ['user', 'trip', 'sharedPost'];
+    // Removido eager loading global para evitar N+1 em sharedPost
+    // Use withRelations() scope quando necessário
 
     /**
      * Usuário autor do post
@@ -94,11 +95,69 @@ class Post extends Model
     */
 
     /**
-     * Retorna apenas posts públicos (exemplo)
+     * Carrega relações essenciais do post
+     */
+    public function scopeWithRelations($query)
+    {
+        return $query->with([
+            'user:id,name,username,email',
+            'trip:id,name,user_id',
+            'uploads' => fn($q) => $q->orderBy('order'),
+        ]);
+    }
+
+    /**
+     * Carrega relações completas incluindo contadores
+     */
+    public function scopeWithFullRelations($query)
+    {
+        return $query->withRelations()
+            ->withCount(['likes', 'comments', 'sharedBy'])
+            ->with(['sharedPost' => fn($q) => $q->withRelations()]);
+    }
+
+    /**
+     * Retorna posts de um usuário específico
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Retorna posts de uma trip
+     */
+    public function scopeForTrip($query, $tripId)
+    {
+        return $query->where('trip_id', $tripId);
+    }
+
+    /**
+     * Retorna apenas posts públicos
      */
     public function scopePublic($query)
     {
-        return $query->whereNull('trip_id'); // ou outro critério, se tiver campo `is_public`
+        return $query->whereNull('trip_id');
+    }
+
+    /**
+     * Retorna apenas posts de trips que o usuário participa
+     */
+    public function scopeAccessibleBy($query, $userId)
+    {
+        return $query->where(function($q) use ($userId) {
+            $q->whereNull('trip_id') // Posts públicos
+              ->orWhere('user_id', $userId) // Posts do próprio usuário
+              ->orWhereHas('trip.users', fn($tq) => $tq->where('user_id', $userId)); // Posts de trips que participa
+        });
+    }
+
+    /**
+     * Ordena por mais recente
+     */
+    public function scopeRecent($query)
+    {
+        return $query->orderBy('created_at', 'desc');
     }
 
     /**

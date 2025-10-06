@@ -26,7 +26,7 @@ class UploadService
         bool $isMain = false,
         int $order = 0
     ): Upload {
-        // Gera um nome único para o arquivo
+        // Gera um nome Ãºnico para o arquivo
         $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
         // Define o caminho baseado no tipo
@@ -49,7 +49,7 @@ class UploadService
     }
 
     /**
-     * Faz upload de múltiplos arquivos
+     * Faz upload de mÃºltiplos arquivos
      */
     public function uploadMultiple(
         array $files,
@@ -65,7 +65,7 @@ class UploadService
                 $uploadableType,
                 $uploadableId,
                 $type,
-                $index === 0, // Primeiro arquivo é o principal
+                $index === 0, // Primeiro arquivo Ã© o principal
                 $index
             ));
         }
@@ -82,7 +82,7 @@ class UploadService
     }
 
     /**
-     * Deleta um upload e o arquivo físico
+     * Deleta um upload e o arquivo fÃ­sico
      */
     public function delete(Upload $upload): bool
     {

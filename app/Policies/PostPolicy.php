@@ -31,7 +31,7 @@ class PostPolicy
         }
 
         // Verifica se é membro da trip (se houver relação)
-        return $post->trip && $post->trip->members()->where('user_id', $user->id)->exists();
+        return $post->trip && $post->trip->users()->where('user_id', $user->id)->exists();
     }
 
     /**

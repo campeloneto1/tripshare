@@ -34,6 +34,10 @@ class TripService
             $data['created_by'] = Auth::id();
             $return = $this->repository->create($data);
             $this->createTripDays($return);
+
+            // Invalida cache do usuário
+            $this->repository->clearUserTripsCache(Auth::id());
+
             return $return;
         });
     }
@@ -42,13 +46,26 @@ class TripService
     {
         return DB::transaction(function () use ($trip, $data) {
             $data['updated_by'] = Auth::id();
-            return $this->repository->update($trip, $data);
+            $updatedTrip = $this->repository->update($trip, $data);
+
+            // Invalida caches
+            $updatedTrip->clearSummaryCache();
+            $this->repository->clearUserTripsCache($trip->user_id);
+
+            return $updatedTrip;
         });
     }
 
     public function delete(Trip $trip): bool
     {
-        return DB::transaction(fn() => $this->repository->delete($trip));
+        return DB::transaction(function() use ($trip) {
+            $result = $this->repository->delete($trip);
+
+            // Invalida cache do usuário
+            $this->repository->clearUserTripsCache($trip->user_id);
+
+            return $result;
+        });
     }
 
     protected function createTripDays(Trip $trip): void

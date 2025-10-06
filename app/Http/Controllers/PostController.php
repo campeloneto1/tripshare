@@ -19,7 +19,22 @@ class PostController extends Controller
     {
         try {
             $this->authorize('viewAny',Post::class);
-            $filters = $request->only(['limit', 'search']);
+
+            // Se for feed do usuário autenticado, usa cache
+            if ($request->input('feed') && auth()->check()) {
+                $limit = (int) $request->input('limit', 20);
+                $posts = $this->service->getFeed(auth()->id(), $limit);
+                return PostResource::collection($posts);
+            }
+
+            // Busca normal com filtros
+            $filters = $request->only(['limit', 'search', 'user_id', 'trip_id']);
+
+            // Adiciona filtro de acessibilidade se usuário autenticado
+            if (auth()->check() && !$request->has('user_id') && !$request->has('trip_id')) {
+                $filters['accessible_by'] = auth()->id();
+            }
+
             $posts = $this->service->list($filters);
             return PostResource::collection($posts);
         } catch (\Exception $e) {

@@ -15,6 +15,7 @@
         "laravel/horizon": "*",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "laravel/ui": "^4.6",
         "predis/predis": "^3.2"
     },
     "require-dev": {

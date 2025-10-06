@@ -45,7 +45,11 @@ class TripDay extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function summary(){
+    /**
+     * Retorna resumo de métricas do dia
+     */
+    public function getSummaryAttribute(): array
+    {
         $allEvents = $this->cities->flatMap(fn($city) => $city->events);
 
         return [

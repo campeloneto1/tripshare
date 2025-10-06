@@ -16,34 +16,31 @@ class UserResource extends JsonResource
     {
         $loggedUser = $request->user();
         $isOwner = $loggedUser && $loggedUser->id === $this->id;
-        $showRelationships = $this->is_public || $isOwner;
-        if($loggedUser){
-            $is_admin = $loggedUser->is_admin();
-        } else {
-            $is_admin = false;
-        }
+        $isAdmin = $loggedUser?->is_admin() ?? false;
+        $showPrivateData = $isOwner || $isAdmin;
+        $showRelationships = $this->is_public || $showPrivateData;
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'username' => $this->username,
-            'phone' => $this->phone,
-            'cpf' => $this->cpf,
-            'email' => $this->email,
-            'email_verified_at' => $this->email_verified_at,
-            'role_id' => $this->role_id,
-            'role' => $is_admin ? RoleResource::make($this->whenLoaded('role')) : null,
-            'trips' => $showRelationships ? TripResource::collection($this->whenLoaded('trips')) : null,
-            'trips_participating' => $showRelationships ? TripResource::collection($this->whenLoaded('tripsParticipating')) : null,
+            'phone' => $this->when($showPrivateData, $this->phone),
+            'cpf' => $this->when($showPrivateData, $this->cpf),
+            'email' => $this->when($showPrivateData, $this->email),
+            'email_verified_at' => $this->when($showPrivateData, $this->email_verified_at?->format('Y-m-d H:i:s')),
+            'role_id' => $this->when($isAdmin, $this->role_id),
+            'role' => $this->when($isAdmin, RoleResource::make($this->whenLoaded('role'))),
+            'trips' => $this->when($showRelationships, TripResource::collection($this->whenLoaded('trips'))),
+            'trips_participating' => $this->when($showRelationships, TripResource::collection($this->whenLoaded('tripsParticipating'))),
             'posts' => PostResource::collection($this->whenLoaded('posts')),
             'is_public' => $this->is_public,
-            'avatar' => $this->getAvatar(),
+            'avatar' => $this->avatar_url,
             'bio' => $this->bio,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deleted_at,
-            'summary' =>  $this->summary(),
-            'flags' => $this->flags(),
+            'deleted_at' => $this->when($showPrivateData, $this->deleted_at?->format('Y-m-d H:i:s')),
+            'summary' =>  $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

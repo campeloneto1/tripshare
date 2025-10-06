@@ -26,7 +26,7 @@ class TripDayCityResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'events' => TripDayEventResource::collection($this->whenLoaded('events')),
-            'summary' => $this->summary(),
+            'summary' => $this->summary,
         ];
     }
 }

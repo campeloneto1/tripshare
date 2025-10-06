@@ -132,8 +132,11 @@ class User extends Authenticatable
                     ->where('status', 'pending');
     }
 
-    public function getAvatar()
-{
+    /**
+     * Retorna a URL do avatar do usuário
+     */
+    public function getAvatarUrlAttribute(): string
+    {
         if ($this->avatar) {
             return url("storage/avatars/{$this->avatar}");
         }
@@ -145,16 +148,24 @@ class User extends Authenticatable
         return "https://ui-avatars.com/api/?name={$name}&background=random&color=fff&size=256";
     }
 
-    public function summary(){
+    /**
+     * Retorna resumo de métricas do usuário
+     */
+    public function getSummaryAttribute(): array
+    {
         return [
-            'following' => $this->following()->count(),
-            'followers' => $this->followers()->count(),
-            'trips' => $this->trips()->count(),
-            'tripsParticipating' => $this->tripsParticipating()->count()
+            'following' => $this->following_count ?? $this->following()->count(),
+            'followers' => $this->followers_count ?? $this->followers()->count(),
+            'trips' => $this->trips_count ?? $this->trips()->count(),
+            'tripsParticipating' => $this->trips_participating_count ?? $this->tripsParticipating()->count()
         ];
     }
 
-    public function flags(){
+    /**
+     * Retorna flags de estado do usuário
+     */
+    public function getFlagsAttribute(): array
+    {
         $isOwner = auth()->check() && auth()->user()->id === $this->id;
 
         return [

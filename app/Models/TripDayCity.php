@@ -46,7 +46,11 @@ class TripDayCity extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function summary(){
+    /**
+     * Retorna resumo de métricas da cidade
+     */
+    public function getSummaryAttribute(): array
+    {
         return [
             'total_events' => (int) $this->events->count(),
             'total_value' => (float) $this->events->sum('price'),

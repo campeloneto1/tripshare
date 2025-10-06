@@ -34,9 +34,9 @@ class PostResource extends JsonResource
             'likes' => PostLikeResource::collection($this->whenLoaded('likes')),
             'comments' => PostCommentResource::collection($this->whenLoaded('comments')),
 
-            'type' => $this->type(),
-            'summary' => $this->summary(),
-            'flags' => $this->flags(),
+            'type' => $this->type,
+            'summary' => $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

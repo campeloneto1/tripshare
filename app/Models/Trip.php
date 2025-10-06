@@ -58,8 +58,21 @@ class Trip extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function flags(){
+    /**
+     * Retorna flags de estado da viagem
+     */
+    public function getFlagsAttribute(): array
+    {
         $user = Auth::user();
+
+        if (!$user) {
+            return [
+                'is_owner' => false,
+                'is_admin' => false,
+                'is_participant' => false,
+                'is_visitant' => $this->is_public,
+            ];
+        }
 
         return [
             'is_owner' => $user->id === $this->user_id,
@@ -69,7 +82,11 @@ class Trip extends Model
         ];
     }
 
-    public function summary(){
+    /**
+     * Retorna resumo de métricas da viagem
+     */
+    public function getSummaryAttribute(): array
+    {
         $cacheKey = "trip_summary_{$this->id}";
 
         return Cache::remember($cacheKey, now()->addHours(1), function () {

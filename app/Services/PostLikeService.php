@@ -23,7 +23,7 @@ class PostLikeService
         return $post;
     }
 
-    public function store(array $data): PostLike
+    public function store(array $data): array
     {
         return DB::transaction(function () use ($data) {
             // Verifica se já existe um like deste usuário neste post
@@ -32,10 +32,17 @@ class PostLikeService
                 $data['user_id']
             );
 
+            // Se já existe, REMOVE (toggle)
             if ($existing) {
-                throw new \InvalidArgumentException('Você já curtiu este post.');
+                $this->repository->delete($existing);
+                return [
+                    'action' => 'unliked',
+                    'message' => 'Like removido com sucesso',
+                    'like' => null,
+                ];
             }
 
+            // Se não existe, CRIA
             $postLike = $this->repository->create($data);
 
             // Envia notificação ao autor do post (se não for o próprio usuário)
@@ -47,7 +54,11 @@ class PostLikeService
                 ));
             }
 
-            return $postLike;
+            return [
+                'action' => 'liked',
+                'message' => 'Like adicionado com sucesso',
+                'like' => $postLike,
+            ];
         });
     }
 

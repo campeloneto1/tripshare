@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 
-class StorePostLikeRequest extends FormRequest
+class StorePostLikeRequest extends BaseRequest
 {
     public function authorize(): bool
     {
@@ -13,14 +12,29 @@ class StorePostLikeRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'post_id' => ['required', 'integer', 'exists:posts,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
             'user_id' => auth()->id(),
-            'post_id' => $this->route('post')->id,
+            'post_id' => $this->route('post')->id,  
         ]);
+    }
+
+    public function messages(): array
+    {
+        return [
+            'post_id.required' => 'O post é obrigatório.',
+            'post_id.exists' => 'Post não encontrado.',
+            'post_id.integer' => 'ID do post deve ser um número.',
+            'user_id.required' => 'Usuário não autenticado.',
+            'user_id.exists' => 'Usuário inválido.',
+            'user_id.integer' => 'ID do usuário deve ser um número.',
+        ];
     }
 }

@@ -45,10 +45,23 @@ class PostLikeController extends Controller
     {
         try {
             $this->authorize('create',PostLike::class);
-            $postLike = $this->service->store($request->validated());
-             return response()->json([
-                "message" => "Like cadastrado com sucesso",
-                "data" => PostLikeResource::make($postLike)
+
+            $result = $this->service->store($request->validated());
+
+            // Se foi removido (unliked)
+            if ($result['action'] === 'unliked') {
+                return response()->json([
+                    "message" => $result['message'],
+                    "action" => "unliked",
+                    "data" => null
+                ], 200);
+            }
+
+            // Se foi adicionado (liked)
+            return response()->json([
+                "message" => $result['message'],
+                "action" => "liked",
+                "data" => PostLikeResource::make($result['like'])
             ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);

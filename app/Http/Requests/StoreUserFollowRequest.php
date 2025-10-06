@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreUserFollowRequest extends FormRequest
+class StoreUserFollowRequest extends BaseRequest
 {
     public function authorize(): bool
     {

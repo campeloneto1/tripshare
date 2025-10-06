@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Trip;
 use App\Models\TripDay;
+use App\Models\TripDayCity;
 use App\Models\TripDayEvent;
 use App\Models\TripUser;
+use App\Observers\TripDayCityObserver;
 use App\Observers\TripDayEventObserver;
 use App\Observers\TripDayObserver;
 use App\Observers\TripObserver;
@@ -31,5 +33,6 @@ class AppServiceProvider extends ServiceProvider
         TripDay::observe(TripDayObserver::class);
         TripDayEvent::observe(TripDayEventObserver::class);
         TripUser::observe(TripUserObserver::class);
+        TripDayCity::observe(TripDayCityObserver::class);
     }
 }

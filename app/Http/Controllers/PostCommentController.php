@@ -21,8 +21,8 @@ class PostCommentController extends Controller
         try {
             $this->authorize('viewAny',PostComment::class);
             $filters = $request->only(['limit', 'search']);
-            $posts = $this->service->list($filters);
-            return PostCommentResource::collection($posts);
+            $comments = $this->service->list($filters);
+            return PostCommentResource::collection($comments);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -33,7 +33,7 @@ class PostCommentController extends Controller
         try {
             $this->authorize('view', $comment);
             $comment = $this->service->find($comment->id);
-            if (!$comment) return response()->json(['error' => 'Perfil não encontrado'], 404);
+            if (!$comment) return response()->json(['error' => 'Comentário não encontrado'], 404);
             return PostCommentResource::make($comment);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -24,6 +24,16 @@ class PostLikeService
     public function store(array $data): PostLike
     {
         return DB::transaction(function () use ($data) {
+            // Verifica se já existe um like deste usuário neste post
+            $existing = $this->repository->findByPostAndUser(
+                $data['post_id'],
+                $data['user_id']
+            );
+
+            if ($existing) {
+                throw new \InvalidArgumentException('Você já curtiu este post.');
+            }
+
             return $this->repository->create($data);
         });
     }

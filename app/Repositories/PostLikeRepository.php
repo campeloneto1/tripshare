@@ -17,14 +17,18 @@ class PostLikeRepository
     }
 
     /**
-     * Lista posts com filtros e paginação.
+     * Lista likes com filtros e paginação.
      */
     public function all(array $filters = [])
     {
         $query = $this->baseQuery();
 
-        if (!empty($filters['search'])) {
-            $this->filterSearch($query, $filters['search']);
+        if (!empty($filters['post_id'])) {
+            $query->where('post_id', $filters['post_id']);
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
         }
 
         if(!empty($filters['limit']) && is_numeric($filters['limit'])){
@@ -40,6 +44,17 @@ class PostLikeRepository
     public function find(int $id): ?PostLike
     {
         return $this->baseQuery()->find($id);
+    }
+
+    /**
+     * Busca like por post_id e user_id.
+     */
+    public function findByPostAndUser(int $postId, int $userId): ?PostLike
+    {
+        return $this->baseQuery()
+            ->where('post_id', $postId)
+            ->where('user_id', $userId)
+            ->first();
     }
 
     /**
@@ -65,16 +80,5 @@ class PostLikeRepository
     public function delete(PostLike $postLike): bool
     {
         return $postLike->delete();
-    }
-
-    /**
-     * Aplica filtro de busca por nome ou descrição.
-     */
-    protected function filterSearch(Builder $query, string $search): void
-    {
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
     }
 }

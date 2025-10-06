@@ -13,7 +13,7 @@ class PostCommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class PostCommentPolicy
      */
     public function view(User $user, PostComment $postComment): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class PostCommentPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class PostCommentPolicy
      */
     public function update(User $user, PostComment $postComment): bool
     {
-        return false;
+        return $postComment->user_id === $user->id;
     }
 
     /**
@@ -45,7 +45,9 @@ class PostCommentPolicy
      */
     public function delete(User $user, PostComment $postComment): bool
     {
-        return false;
+        // Pode deletar se for o autor do comentário ou do post
+        return $postComment->user_id === $user->id
+            || $postComment->post->user_id === $user->id;
     }
 
     /**
@@ -53,7 +55,7 @@ class PostCommentPolicy
      */
     public function restore(User $user, PostComment $postComment): bool
     {
-        return false;
+        return $postComment->user_id === $user->id;
     }
 
     /**
@@ -61,6 +63,6 @@ class PostCommentPolicy
      */
     public function forceDelete(User $user, PostComment $postComment): bool
     {
-        return false;
+        return $postComment->user_id === $user->id;
     }
 }

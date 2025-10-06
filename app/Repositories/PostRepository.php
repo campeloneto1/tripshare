@@ -24,7 +24,15 @@ class PostRepository
         $query = $this->baseQuery();
 
         if (!empty($filters['search'])) {
-            $this->filterSearch($query, $filters['search']);
+            $query->where('content', 'like', "%{$filters['search']}%");
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        if (!empty($filters['trip_id'])) {
+            $query->where('trip_id', $filters['trip_id']);
         }
 
         if(!empty($filters['limit']) && is_numeric($filters['limit'])){
@@ -65,16 +73,5 @@ class PostRepository
     public function delete(Post $post): bool
     {
         return $post->delete();
-    }
-
-    /**
-     * Aplica filtro de busca por nome ou descrição.
-     */
-    protected function filterSearch(Builder $query, string $search): void
-    {
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
     }
 }

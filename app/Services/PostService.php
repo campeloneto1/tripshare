@@ -18,13 +18,23 @@ class PostService
     public function find(int $id): ?Post
     {
         $post = $this->repository->find($id);
-        $post->load(['user', 'trip', 'sharedPost', 'uploads', 'likes', 'comments']);
+        if ($post) {
+            $post->load(['user', 'trip', 'sharedPost', 'uploads']);
+        }
         return $post;
     }
 
     public function store(array $data): Post
     {
         return DB::transaction(function () use ($data) {
+            // Valida se está compartilhando um post que já é compartilhamento
+            if (!empty($data['shared_post_id'])) {
+                $sharedPost = $this->repository->find($data['shared_post_id']);
+                if ($sharedPost && $sharedPost->shared_post_id) {
+                    throw new \InvalidArgumentException('Não é possível compartilhar um post que já é um compartilhamento.');
+                }
+            }
+
             return $this->repository->create($data);
         });
     }

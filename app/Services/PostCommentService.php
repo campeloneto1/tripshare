@@ -24,6 +24,17 @@ class PostCommentService
     public function store(array $data): PostComment
     {
         return DB::transaction(function () use ($data) {
+            // Valida se o parent_id existe e pertence ao mesmo post
+            if (!empty($data['parent_id'])) {
+                $parent = $this->repository->find($data['parent_id']);
+                if (!$parent) {
+                    throw new \InvalidArgumentException('Comentário pai não encontrado.');
+                }
+                if ($parent->post_id !== $data['post_id']) {
+                    throw new \InvalidArgumentException('Comentário pai não pertence a este post.');
+                }
+            }
+
             return $this->repository->create($data);
         });
     }

@@ -6,9 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePostLikeRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -16,16 +13,14 @@ class StorePostLikeRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'post_id' => ['required', 'exists:posts,id'],
-        ];
+        return [];
     }
 
-    public function messages(): array
+    protected function prepareForValidation()
     {
-        return [
-            'post_id.required' => 'O ID do post é obrigatório.',
-            'post_id.exists' => 'O post informado não existe.',
-        ];
+        $this->merge([
+            'user_id' => auth()->id(),
+            'post_id' => $this->route('post')->id,
+        ]);
     }
 }

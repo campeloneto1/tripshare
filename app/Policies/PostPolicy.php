@@ -13,7 +13,7 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,17 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return false;
+        // Pode ver se: é público, é autor, ou é membro da trip
+        if (!$post->trip_id) {
+            return true; // Post público
+        }
+
+        if ($post->user_id === $user->id) {
+            return true; // É o autor
+        }
+
+        // Verifica se é membro da trip (se houver relação)
+        return $post->trip && $post->trip->members()->where('user_id', $user->id)->exists();
     }
 
     /**
@@ -29,7 +39,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +47,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id;
     }
 
     /**
@@ -45,7 +55,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id;
     }
 
     /**
@@ -53,7 +63,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id;
     }
 
     /**
@@ -61,6 +71,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id;
     }
 }

@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table = 'posts';
 
@@ -22,7 +21,6 @@ class Post extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     /*
@@ -126,22 +124,28 @@ class Post extends Model
 
         return 'regular';
     }
-
-    public function summary(){
+    /**
+     * Retorna resumo de métricas do post
+     */
+    public function getSummaryAttribute(): array
+    {
         return [
-            'likes_count' => $this->likes()->count(),
-            'comments_count' => $this->comments()->count(),
-            'shares_count' => $this->sharedBy()->count(),
-            'uploads_count' => $this->uploads()->count(),
+            'likes_count' => $this->likes_count ?? $this->likes()->count(),
+            'comments_count' => $this->comments_count ?? $this->comments()->count(),
+            'shares_count' => $this->shared_by_count ?? $this->sharedBy()->count(),
+            'uploads_count' => $this->uploads_count ?? $this->uploads()->count(),
         ];
     }
 
-    public function flags(){
+    /**
+     * Retorna flags de estado do post
+     */
+    public function getFlagsAttribute(): array
+    {
         return [
-            'liked_by_user' => $this->when(
-                auth()->check(),
-                fn() => $this->likes()->where('user_id', auth()->id())->exists()
-            ),
+            'liked_by_user' => auth()->check()
+                ? $this->likes()->where('user_id', auth()->id())->exists()
+                : false,
             'is_shared' => $this->is_shared,
         ];
     }

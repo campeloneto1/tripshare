@@ -13,7 +13,7 @@ class PostLikePolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class PostLikePolicy
      */
     public function view(User $user, PostLike $postLike): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class PostLikePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,6 +37,7 @@ class PostLikePolicy
      */
     public function update(User $user, PostLike $postLike): bool
     {
+        // Likes não são editáveis, apenas criados e deletados
         return false;
     }
 
@@ -45,7 +46,7 @@ class PostLikePolicy
      */
     public function delete(User $user, PostLike $postLike): bool
     {
-        return false;
+        return $postLike->user_id === $user->id;
     }
 
     /**
@@ -61,6 +62,6 @@ class PostLikePolicy
      */
     public function forceDelete(User $user, PostLike $postLike): bool
     {
-        return false;
+        return $postLike->user_id === $user->id;
     }
 }

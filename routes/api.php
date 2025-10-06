@@ -13,11 +13,10 @@ use App\Http\Controllers\TripDayEventController;
 use App\Http\Controllers\TripUserController;
 use App\Http\Controllers\UserFollowController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PostCommentController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostLikeController;
 
-// Teste rápido
-Route::get('teste', function () {
-    return ['ok' => true];
-});
 
 // Login com throttle agressivo (5 tentativas por minuto)
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -31,15 +30,19 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
     });
 
     Route::apiResources([
-        'users' => UserController::class,
-        'users.follows' => UserFollowController::class,
-        'roles' => RoleController::class,
         'permissions' => PermissionController::class,
+        'posts' => PostController::class,
+        'posts.comments' => PostCommentController::class,
+        'posts.likes' => PostLikeController::class,
+        'roles' => RoleController::class,
         'trips' => TripController::class,
         'trips.days' => TripDayController::class,
         'trips.days.cities' => TripDayCityController::class,
         'trips.days.cities.events' => TripDayEventController::class,
-        'trips.users' => TripUserController::class
+        'trips.users' => TripUserController::class,
+        'users' => UserController::class,
+        'users.follows' => UserFollowController::class,
+        
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

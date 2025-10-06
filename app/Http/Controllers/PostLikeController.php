@@ -21,8 +21,9 @@ class PostLikeController extends Controller
         try {
             $this->authorize('viewAny',PostLike::class);
             $filters = $request->only(['limit', 'search']);
-            $posts = $this->service->list($filters);
-            return PostLikeResource::collection($posts);
+            $filters['post_id'] = $post->id;
+            $likes = $this->service->list($filters);
+            return PostLikeResource::collection($likes);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -33,7 +34,7 @@ class PostLikeController extends Controller
         try {
             $this->authorize('view', $like);
             $like = $this->service->find($like->id);
-            if (!$like) return response()->json(['error' => 'Perfil não encontrado'], 404);
+            if (!$like) return response()->json(['error' => 'Like não encontrado'], 404);
             return PostLikeResource::make($like);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

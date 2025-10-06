@@ -32,7 +32,7 @@ class PostController extends Controller
         try {
             $this->authorize('view', $post);
             $post = $this->service->find($post->id);
-            if (!$post) return response()->json(['error' => 'Perfil não encontrado'], 404);
+            if (!$post) return response()->json(['error' => 'Post não encontrado'], 404);
             return PostResource::make($post);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

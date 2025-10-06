@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('shared_post_id')->nullable()->constrained('posts')->nullOnDelete();
             $table->text('content')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

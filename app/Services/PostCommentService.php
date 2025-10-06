@@ -4,7 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\PostComment;
+use App\Models\Post;
 use App\Repositories\PostCommentRepository;
+use App\Notifications\PostCommentNotification;
 
 class PostCommentService
 {
@@ -35,7 +37,31 @@ class PostCommentService
                 }
             }
 
-            return $this->repository->create($data);
+            $comment = $this->repository->create($data);
+
+            // Envia notificação ao autor do post (se não for o próprio usuário)
+            $post = Post::find($data['post_id']);
+            if ($post && $post->user_id !== $data['user_id']) {
+                $post->user->notify(new PostCommentNotification(
+                    auth()->user(),
+                    $post,
+                    $comment
+                ));
+            }
+
+            // Se for resposta a um comentário, notifica o autor do comentário pai
+            if (!empty($data['parent_id'])) {
+                $parent = $this->repository->find($data['parent_id']);
+                if ($parent && $parent->user_id !== $data['user_id'] && $parent->user_id !== $post->user_id) {
+                    $parent->user->notify(new PostCommentNotification(
+                        auth()->user(),
+                        $post,
+                        $comment
+                    ));
+                }
+            }
+
+            return $comment;
         });
     }
 

@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RolePermissionSeeder::class,
             UserSeeder::class,
-            TripSeeder::class,
-            TripDaySeeder::class,
+            //TripSeeder::class,
+            //TripDaySeeder::class,
         ]);
     }
 }

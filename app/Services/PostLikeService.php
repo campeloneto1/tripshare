@@ -4,7 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\PostLike;
+use App\Models\Post;
 use App\Repositories\PostLikeRepository;
+use App\Notifications\PostLikeNotification;
 
 class PostLikeService
 {
@@ -34,7 +36,18 @@ class PostLikeService
                 throw new \InvalidArgumentException('Você já curtiu este post.');
             }
 
-            return $this->repository->create($data);
+            $postLike = $this->repository->create($data);
+
+            // Envia notificação ao autor do post (se não for o próprio usuário)
+            $post = Post::find($data['post_id']);
+            if ($post && $post->user_id !== $data['user_id']) {
+                $post->user->notify(new PostLikeNotification(
+                    auth()->user(),
+                    $post
+                ));
+            }
+
+            return $postLike;
         });
     }
 

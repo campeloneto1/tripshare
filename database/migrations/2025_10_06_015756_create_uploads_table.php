@@ -11,8 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('uploads', function (Blueprint $table) {
+         Schema::create('uploads', function (Blueprint $table) {
             $table->id();
+            
+            // Morph relationship
+            $table->morphs('uploadable'); // cria uploadable_type e uploadable_id
+
+            // Dados principais do arquivo
+            $table->string('path'); // caminho dentro do storage
+            $table->string('original_name')->nullable(); // nome original do arquivo
+            $table->string('type')->default('image'); // image, video, document etc.
+            $table->integer('size')->nullable(); // tamanho em bytes
+
+            // Campos auxiliares
+            $table->unsignedInteger('order')->default(0); // útil em posts com várias imagens
+            $table->boolean('is_main')->default(false); // ex: imagem principal
             $table->timestamps();
         });
     }

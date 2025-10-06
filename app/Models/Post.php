@@ -29,7 +29,7 @@ class Post extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $with = ['user', 'trip', 'sharedPost', 'uploads'];
+    protected $with = ['user', 'trip', 'sharedPost'];
 
     /**
      * Usuário autor do post
@@ -68,7 +68,7 @@ class Post extends Model
      */
     public function uploads()
     {
-        return $this->hasMany(Upload::class);
+        return $this->morphMany(Upload::class, 'uploadable');
     }
 
     /**
@@ -133,7 +133,7 @@ class Post extends Model
             'likes_count' => $this->likes_count ?? $this->likes()->count(),
             'comments_count' => $this->comments_count ?? $this->comments()->count(),
             'shares_count' => $this->shared_by_count ?? $this->sharedBy()->count(),
-            'uploads_count' => $this->uploads_count ?? $this->uploads()->count(),
+            //'uploads_count' => $this->uploads_count ?? $this->uploads()->count(),
         ];
     }
 
@@ -143,6 +143,7 @@ class Post extends Model
     public function getFlagsAttribute(): array
     {
         return [
+            'is_owner' => auth()->check() && $this->user_id === auth()->id(),
             'liked_by_user' => auth()->check()
                 ? $this->likes()->where('user_id', auth()->id())->exists()
                 : false,

@@ -28,7 +28,6 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_public',
-        'avatar',
         'bio',
     ];
 
@@ -137,14 +136,14 @@ class User extends Authenticatable
      */
     public function getAvatarUrlAttribute(): string
     {
-        if ($this->avatar) {
-            return url("storage/avatars/{$this->avatar}");
+        // Prioridade 1: Upload polimórfico (novo sistema)
+        $uploadAvatar = $this->upload;
+        if ($uploadAvatar) {
+            return $uploadAvatar->url;
         }
 
-        // Gera o nome para o fallback
+        // Fallback: Gera avatar com iniciais
         $name = urlencode($this->name ?? 'User');
-
-        // Gera o avatar com as iniciais (usando ui-avatars.com)
         return "https://ui-avatars.com/api/?name={$name}&background=random&color=fff&size=256";
     }
 
@@ -180,5 +179,10 @@ class User extends Authenticatable
 
     public function posts(){
         return $this->hasMany(Post::class)->without('user')->orderBy('id', 'desc');
+    }
+
+    public function upload()
+    {
+        return $this->morphOne(Upload::class, 'uploadable');
     }
 }

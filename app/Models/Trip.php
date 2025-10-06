@@ -58,6 +58,11 @@ class Trip extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function uploads()
+    {
+        return $this->morphMany(Upload::class, 'uploadable');
+    }
+
     /**
      * Retorna flags de estado da viagem
      */

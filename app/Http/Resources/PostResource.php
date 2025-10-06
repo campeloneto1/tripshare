@@ -30,7 +30,7 @@ class PostResource extends JsonResource
             'shared_post' => PostResource::make($this->whenLoaded('sharedPost')),
             'shared_post_id' => $this->shared_post_id,
             // Uploads (fotos / vídeos)
-            'uploads' => UploadResource::collection($this->whenLoaded('uploads')),
+            //'uploads' => UploadResource::collection($this->whenLoaded('uploads')),
             'likes' => PostLikeResource::collection($this->whenLoaded('likes')),
             'comments' => PostCommentResource::collection($this->whenLoaded('comments')),
 

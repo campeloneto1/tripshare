@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsTripHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 class Trip extends Model
 {
     /** @use HasFactory<\Database\Factories\TripFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsTripHistory;
 
     protected $table = 'trips';
 

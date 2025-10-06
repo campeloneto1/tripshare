@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsTripHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TripUser extends Model
 {
     /** @use HasFactory<\Database\Factories\TripUserFactory> */
-    use HasFactory;
+    use HasFactory, LogsTripHistory;
 
     protected $table = 'trips_users';
 

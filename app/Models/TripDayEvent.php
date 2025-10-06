@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsTripHistory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class TripDayEvent extends Model
 {
     /** @use HasFactory<\Database\Factories\TripDayEventsFactory> */
-    use HasFactory;
+    use HasFactory, LogsTripHistory;
 
     protected $table = 'trips_days_events';
 

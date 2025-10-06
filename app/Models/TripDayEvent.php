@@ -48,4 +48,14 @@ class TripDayEvent extends Model
             $event->city->day->trip->clearSummaryCache();
         });
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(EventReview::class, 'trip_day_event_id');
+    }
+
+    public function averageRating()
+    {
+        return $this->reviews()->avg('rating');
+    }
 }

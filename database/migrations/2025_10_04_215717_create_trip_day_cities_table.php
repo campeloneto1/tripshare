@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('lon', 10, 7);
             $table->string('osm_id')->nullable();
             $table->string('country_code', 2)->nullable();
-            $table->integer('order')->default(1);
+            $table->tinyInteger('order')->default(1);
 
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');

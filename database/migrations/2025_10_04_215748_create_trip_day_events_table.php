@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('source_api')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
-            $table->integer('order')->default(1);
+            $table->tinyInteger('order')->default(1);
             $table->text('notes')->nullable();
 
             $table->decimal('price', 10, 2)->nullable();

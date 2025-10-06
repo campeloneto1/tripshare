@@ -35,6 +35,7 @@ class UserResource extends JsonResource
             'role' => $is_admin ? RoleResource::make($this->whenLoaded('role')) : null,
             'trips' => $showRelationships ? TripResource::collection($this->whenLoaded('trips')) : null,
             'trips_participating' => $showRelationships ? TripResource::collection($this->whenLoaded('tripsParticipating')) : null,
+            'posts' => PostResource::collection($this->whenLoaded('posts')),
             'is_public' => $this->is_public,
             'avatar' => $this->getAvatar(),
             'bio' => $this->bio,

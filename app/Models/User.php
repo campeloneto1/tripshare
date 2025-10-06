@@ -166,4 +166,8 @@ class User extends Authenticatable
             'has_received_follow_request' => !$isOwner && auth()->check() && $this->pendingFollowRequests()->where('follower_id', auth()->user()->id)->exists(),
         ];
     }
+
+    public function posts(){
+        return $this->hasMany(Post::class)->without('user')->orderBy('id', 'desc');
+    }
 }

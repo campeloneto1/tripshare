@@ -100,15 +100,15 @@ class RoleController extends Controller
     }
 
     public function syncPermissions(Role $role, SyncPermissionsRequest $request)
-{
-    try {
-        $this->authorize('viewAny',Role::class);
-        $permissionIds = $request->validated();
-        $this->service->syncPermissions($role, $permissionIds);
-        return response()->json(['message' => 'Permissões sincronizadas com sucesso.'], 200);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
+    {
+        try {
+            $this->authorize('viewAny',Role::class);
+            $permissionIds = $request->validated();
+            $this->service->syncPermissions($role, $permissionIds);
+            return response()->json(['message' => 'Permissões sincronizadas com sucesso.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
    
 }

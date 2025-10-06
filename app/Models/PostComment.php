@@ -10,6 +10,8 @@ class PostComment extends Model
     /** @use HasFactory<\Database\Factories\PostCommentFactory> */
     use HasFactory;
 
+    protected $table = 'posts_comments';
+
     protected $fillable = [
         'post_id',
         'user_id',

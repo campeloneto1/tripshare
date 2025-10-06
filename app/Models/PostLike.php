@@ -10,6 +10,8 @@ class PostLike extends Model
     /** @use HasFactory<\Database\Factories\PostLikeFactory> */
     use HasFactory;
 
+    protected $table = 'posts_likes';
+
       protected $fillable = [
         'user_id',
         'post_id',

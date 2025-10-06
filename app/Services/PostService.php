@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use App\Models\Post;
 use App\Repositories\PostRepository;
+use Illuminate\Support\Facades\Auth;
 
 class PostService
 {
@@ -34,7 +35,7 @@ class PostService
                     throw new \InvalidArgumentException('Não é possível compartilhar um post que já é um compartilhamento.');
                 }
             }
-
+            $data['user_id'] = Auth::id();
             return $this->repository->create($data);
         });
     }

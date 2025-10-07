@@ -14,6 +14,8 @@ class StorePostCommentRequest extends BaseRequest
         return [
             'parent_id' => ['nullable', 'exists:posts_comments,id'],
             'content' => ['required', 'string', 'max:1000'],
+            'post_id' => ['required', 'exists:posts,id'],
+            'user_id' => ['required', 'exists:users,id'],
         ];
     }
 

@@ -12,6 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('trips_days_events', function (Blueprint $table) {
+            // Dropar índice antes de dropar a coluna
+            $table->dropIndex('idx_trip_events_type');
+        });
+
+        Schema::table('trips_days_events', function (Blueprint $table) {
             // Adicionar place_id
             $table->foreignId('place_id')->nullable()->after('trip_day_city_id')->constrained('places')->onDelete('set null');
 
@@ -37,7 +42,7 @@ return new class extends Migration
         Schema::table('trips_days_events', function (Blueprint $table) {
             // Restaurar campos removidos
             $table->string('name')->after('trip_day_city_id');
-            $table->string('type')->nullable();
+            $table->enum('type', ['hotel','restaurant','attraction','transport','other'])->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lon', 10, 7)->nullable();
             $table->string('xid')->nullable();
@@ -46,6 +51,11 @@ return new class extends Migration
             // Remover place_id
             $table->dropForeign(['place_id']);
             $table->dropColumn('place_id');
+        });
+
+        Schema::table('trips_days_events', function (Blueprint $table) {
+            // Recriar índice
+            $table->index('type', 'idx_trip_events_type');
         });
 
         Schema::table('events_reviews', function (Blueprint $table) {

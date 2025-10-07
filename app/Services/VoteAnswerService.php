@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\VoteAnswer;
 use App\Models\VoteOption;
 use App\Models\VoteQuestion;
+use App\Notifications\VoteReceivedNotification;
 use App\Repositories\VoteAnswerRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class VoteAnswerService
@@ -65,7 +68,15 @@ class VoteAnswerService
             // Adiciona vote_question_id aos dados
             $data['vote_question_id'] = $question->id;
 
-            return $this->repository->create($data);
+            $voteAnswer = $this->repository->create($data);
+
+            // Carregar relações necessárias para notificação
+            $voteAnswer->load('option', 'user');
+
+            // Notifica participantes da trip (exceto quem votou)
+            $this->notifyTripParticipants($question, $voteAnswer);
+
+            return $voteAnswer;
         });
     }
 
@@ -100,5 +111,45 @@ class VoteAnswerService
 
             return $this->repository->delete($voteAnswer);
         });
+    }
+
+    private function notifyTripParticipants(VoteQuestion $question, VoteAnswer $voteAnswer): void
+    {
+        $votable = $question->votable;
+
+        if (!$votable) {
+            return;
+        }
+
+        // Busca a trip relacionada
+        $trip = null;
+        if ($votable instanceof \App\Models\TripDay) {
+            $trip = $votable->trip;
+        } elseif ($votable instanceof \App\Models\TripDayCity) {
+            $trip = $votable->tripDay?->trip;
+        }
+
+        if (!$trip) {
+            return;
+        }
+
+        // Busca participantes da trip (exceto quem votou)
+        $participants = User::whereHas('trips', function ($query) use ($trip) {
+            $query->where('trips.id', $trip->id);
+        })->where('id', '!=', $voteAnswer->user_id)->get();
+
+        // Notifica também o criador da trip se não for quem votou
+        if ($trip->user_id != $voteAnswer->user_id && !$participants->contains('id', $trip->user_id)) {
+            $tripOwner = User::find($trip->user_id);
+            if ($tripOwner) {
+                $participants->push($tripOwner);
+            }
+        }
+
+        // Envia notificação
+        Notification::send(
+            $participants,
+            new VoteReceivedNotification($question, $voteAnswer->user, $voteAnswer)
+        );
     }
 }

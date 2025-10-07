@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventReviewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
@@ -32,6 +33,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
     });
 
     Route::apiResources([
+        'events-reviews' => EventReviewController::class,
         'permissions' => PermissionController::class,
         'posts' => PostController::class,
         'posts.comments' => PostCommentController::class,

@@ -19,8 +19,8 @@ class UpdateVoteQuestionRequest extends BaseRequest
         return [
             'title' => 'sometimes|required|string|max:255',
             'type' => 'sometimes|required|in:city,event',
-            'start_at' => 'sometimes|required|date|before:end_at',
-            'end_at' => 'sometimes|required|date|after:start_at',
+            'start_date' => 'sometimes|required|date|before:end_date',
+            'end_date' => 'sometimes|required|date|after:start_date',
             'is_closed' => 'sometimes|boolean',
         ];
     }
@@ -30,8 +30,8 @@ class UpdateVoteQuestionRequest extends BaseRequest
         return [
             'title.required' => 'O título da votação é obrigatório.',
             'type.in' => 'O tipo da votação deve ser "city" ou "event".',
-            'start_at.before' => 'A data de início deve ser antes da data de término.',
-            'end_at.after' => 'A data de término deve ser depois da data de início.',
+            'start_date.before' => 'A data de início deve ser antes da data de término.',
+            'end_date.after' => 'A data de término deve ser depois da data de início.',
             'is_closed.boolean' => 'O status de fechamento deve ser verdadeiro ou falso.',
         ];
     }

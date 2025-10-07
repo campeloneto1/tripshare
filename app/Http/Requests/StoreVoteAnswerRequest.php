@@ -54,12 +54,12 @@ class StoreVoteAnswerRequest extends BaseRequest
                         return;
                     }
 
-                    if (now()->isBefore($question->start_at)) {
+                    if (now()->isBefore($question->start_date)) {
                         $fail('Esta votação ainda não começou.');
                         return;
                     }
 
-                    if (now()->isAfter($question->end_at)) {
+                    if (now()->isAfter($question->end_date)) {
                         $fail('Esta votação já terminou.');
                         return;
                     }

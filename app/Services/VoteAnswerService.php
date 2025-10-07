@@ -47,12 +47,12 @@ class VoteAnswerService
             }
 
             // Verifica se a votação já começou
-            if (now()->isBefore($question->start_at)) {
+            if (now()->isBefore($question->start_date)) {
                 throw ValidationException::withMessages(['vote_question_id' => 'Esta votação ainda não começou.']);
             }
 
             // Verifica se a votação já terminou
-            if (now()->isAfter($question->end_at)) {
+            if (now()->isAfter($question->end_date)) {
                 throw ValidationException::withMessages(['vote_question_id' => 'Esta votação já terminou.']);
             }
 

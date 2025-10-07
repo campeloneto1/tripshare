@@ -35,9 +35,9 @@ class VoteQuestionCreatedNotification extends Notification implements ShouldQueu
             'creator_name' => $this->creator->name,
             'creator_username' => $this->creator->username,
             'creator_avatar' => $this->creator->getAvatar(),
-            'start_at' => $this->question->start_at?->toDateTimeString(),
-            'end_at' => $this->question->end_at?->toDateTimeString(),
-            'message' => "{$this->creator->name} criou a enquete '{$this->question->title}'. Vote até " . $this->question->end_at?->format('d/m/Y H:i') . "!"
+            'start_date' => $this->question->start_date?->toDateTimeString(),
+            'end_date' => $this->question->end_date?->toDateTimeString(),
+            'message' => "{$this->creator->name} criou a enquete '{$this->question->title}'. Vote até " . $this->question->end_date?->format('d/m/Y H:i') . "!"
         ];
     }
 }

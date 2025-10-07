@@ -17,8 +17,8 @@ class VoteQuestion extends Model
     protected $fillable = [
         'title',
         'type',
-        'start_at',
-        'end_at',
+        'start_date',
+        'end_date',
         'is_closed',
         'closed_at',
         'votable_id',
@@ -26,8 +26,8 @@ class VoteQuestion extends Model
     ];
 
     protected $casts = [
-        'start_at' => 'datetime',
-        'end_at' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
         'closed_at' => 'datetime',
         'is_closed' => 'boolean',
     ];

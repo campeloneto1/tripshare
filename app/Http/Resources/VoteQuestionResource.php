@@ -21,6 +21,7 @@ class VoteQuestionResource extends JsonResource
             'start_at' => $this->start_at?->toDateTimeString(),
             'end_at' => $this->end_at?->toDateTimeString(),
             'is_closed' => $this->is_closed,
+            'closed_at' => $this->closed_at?->toDateTimeString(),
             'votable' => [
                 'id' => $this->votable_id,
                 'type' => class_basename($this->votable_type),

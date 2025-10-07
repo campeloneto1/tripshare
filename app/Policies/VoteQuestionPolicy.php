@@ -29,12 +29,18 @@ class VoteQuestionPolicy
 
     public function update(User $user, VoteQuestion $voteQuestion): bool
     {
+        if($voteQuestion->is_closed){
+            return false;
+        }
         $trip = $this->getTripFromVotable($voteQuestion);
         return $trip && ($user->id === $trip->user_id || $user->hasPermission('administrator'));
     }
 
     public function delete(User $user, VoteQuestion $voteQuestion): bool
     {
+         if($voteQuestion->is_closed){
+            return false;
+        }
         $trip = $this->getTripFromVotable($voteQuestion);
         return $trip && ($user->id === $trip->user_id || $user->hasPermission('administrator'));
     }

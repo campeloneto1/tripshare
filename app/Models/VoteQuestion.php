@@ -20,6 +20,7 @@ class VoteQuestion extends Model
         'start_at',
         'end_at',
         'is_closed',
+        'closed_at',
         'votable_id',
         'votable_type',
     ];
@@ -27,6 +28,7 @@ class VoteQuestion extends Model
     protected $casts = [
         'start_at' => 'datetime',
         'end_at' => 'datetime',
+        'closed_at' => 'datetime',
         'is_closed' => 'boolean',
     ];
 

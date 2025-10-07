@@ -28,12 +28,18 @@ class VoteAnswerPolicy
 
     public function update(User $user, VoteAnswer $voteAnswer): bool
     {
+        if($voteAnswer->question->is_closed){
+            return false;
+        }
         // Apenas o próprio usuário ou admin pode alterar respostas
         return $user->id === $voteAnswer->user_id || $user->hasPermission('administrator');
     }
 
     public function delete(User $user, VoteAnswer $voteAnswer): bool
     {
+        if($voteAnswer->question->is_closed){
+            return false;
+        }
         // Apenas o próprio usuário ou admin pode deletar respostas
         return $user->id === $voteAnswer->user_id || $user->hasPermission('administrator');
     }

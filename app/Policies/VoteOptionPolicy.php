@@ -25,12 +25,18 @@ class VoteOptionPolicy
 
     public function update(User $user, VoteOption $voteOption): bool
     {
+        if($voteOption->question->is_closed){
+            return false;
+        }
         return $user->id === $voteOption->question->trip->user_id
             || $user->hasPermission('administrator');
     }
 
     public function delete(User $user, VoteOption $voteOption): bool
     {
+        if($voteOption->question->is_closed){
+            return false;
+        }
         return $user->id === $voteOption->question->trip->user_id
             || $user->hasPermission('administrator');
     }

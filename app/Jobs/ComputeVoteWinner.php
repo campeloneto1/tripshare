@@ -43,7 +43,10 @@ class ComputeVoteWinner implements ShouldQueue
 
         if (!$winningOption) {
             // Nenhum voto foi registrado
-            $this->question->update(['is_closed' => true]);
+            $this->question->update([
+                'is_closed' => true,
+                'closed_at' => now(),
+            ]);
             return;
         }
 
@@ -69,6 +72,9 @@ class ComputeVoteWinner implements ShouldQueue
         }
 
         // Fecha a votação
-        $this->question->update(['is_closed' => true]);
+        $this->question->update([
+            'is_closed' => true,
+            'closed_at' => now(),
+        ]);
     }
 }

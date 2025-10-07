@@ -22,6 +22,7 @@ return new class extends Migration
             $table->timestamp('start_at');
             $table->timestamp('end_at');
             $table->boolean('is_closed')->default(false);
+            $table->timestamp('closed_at')->nullable(); // Quando a votação foi fechada
 
             $table->timestamps();
         });

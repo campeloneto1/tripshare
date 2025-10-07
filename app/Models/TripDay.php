@@ -51,6 +51,8 @@ class TripDay extends Model
      */
     public function getSummaryAttribute(): array
     {
+        // Carrega places para acessar o tipo
+        $this->load('cities.events.place');
         $allEvents = $this->cities->flatMap(fn($city) => $city->events);
 
         return [
@@ -58,18 +60,18 @@ class TripDay extends Model
             'total_events' => (int) $allEvents->count(),
             'total_value' => (float) $allEvents->sum('price'),
             'total_events_by_type' => [
-                'hotel' => $allEvents->where('type', 'hotel')->count(),
-                'restaurant' => $allEvents->where('type', 'restaurant')->count(),
-                'attraction' => $allEvents->where('type', 'attraction')->count(),
-                'transport' => $allEvents->where('type', 'transport')->count(),
-                'other' => $allEvents->where('type', 'other')->count(),
+                'hotel' => $allEvents->where('place.type', 'hotel')->count(),
+                'restaurant' => $allEvents->where('place.type', 'restaurant')->count(),
+                'attraction' => $allEvents->where('place.type', 'attraction')->count(),
+                'transport' => $allEvents->where('place.type', 'transport')->count(),
+                'other' => $allEvents->where('place.type', 'other')->count(),
             ],
             'total_value_by_type' => [
-                'hotel' => (float) $allEvents->where('type', 'hotel')->sum('price'),
-                'restaurant' => (float) $allEvents->where('type', 'restaurant')->sum('price'),
-                'attraction' => (float) $allEvents->where('type', 'attraction')->sum('price'),
-                'transport' => (float) $allEvents->where('type', 'transport')->sum('price'),
-                'other' => (float) $allEvents->where('type', 'other')->sum('price'),
+                'hotel' => (float) $allEvents->filter(fn($e) => $e->place?->type === 'hotel')->sum('price'),
+                'restaurant' => (float) $allEvents->filter(fn($e) => $e->place?->type === 'restaurant')->sum('price'),
+                'attraction' => (float) $allEvents->filter(fn($e) => $e->place?->type === 'attraction')->sum('price'),
+                'transport' => (float) $allEvents->filter(fn($e) => $e->place?->type === 'transport')->sum('price'),
+                'other' => (float) $allEvents->filter(fn($e) => $e->place?->type === 'other')->sum('price'),
             ],
         ];
     }

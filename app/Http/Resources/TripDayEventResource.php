@@ -16,12 +16,28 @@ class TripDayEventResource extends JsonResource
     {
          return [
             'id' => $this->id,
-            'name' => $this->name,
-            'type' => $this->type,
-            'lat' => $this->lat,
-            'lon' => $this->lon,
-            'xid' => $this->xid,
-            'source_api' => $this->source_api,
+            'place_id' => $this->place_id,
+
+            // Dados do Place (via relacionamento)
+            'place' => $this->whenLoaded('place', function () {
+                return [
+                    'id' => $this->place->id,
+                    'xid' => $this->place->xid,
+                    'name' => $this->place->name,
+                    'type' => $this->place->type,
+                    'lat' => $this->place->lat,
+                    'lon' => $this->place->lon,
+                    'address' => $this->place->address,
+                    'city' => $this->place->city,
+                    'state' => $this->place->state,
+                    'country' => $this->place->country,
+                    'source_api' => $this->place->source_api,
+                    'average_rating' => $this->place->averageRating(),
+                    'reviews_count' => $this->place->reviewsCount(),
+                ];
+            }),
+
+            // Dados específicos da visita
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'order' => $this->order,
@@ -30,7 +46,7 @@ class TripDayEventResource extends JsonResource
             'currency' => $this->currency,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
-            'created_at' => $this->created_at,  
+            'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
     }

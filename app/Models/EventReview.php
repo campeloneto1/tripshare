@@ -15,7 +15,7 @@ class EventReview extends Model
 
     protected $fillable = [
         'trip_day_event_id',
-        'xid',
+        'place_id',
         'user_id',
         'rating',
         'comment'
@@ -41,5 +41,13 @@ class EventReview extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relacionamento com o lugar.
+     */
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class, 'place_id');
     }
 }

@@ -15,9 +15,13 @@ class TripDayEvent extends Model
     protected $table = 'trips_days_events';
 
     protected $fillable = [
-        'trip_day_city_id','name','type','lat','lon','xid','source_api',
+        'trip_day_city_id','place_id',
         'start_time','end_time','order','notes', 'price', 'currency'
     ];
+
+    public function place() {
+        return $this->belongsTo(Place::class, 'place_id');
+    }
 
     public function city() {
         return $this->belongsTo(TripDayCity::class, 'trip_day_city_id');

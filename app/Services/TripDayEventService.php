@@ -18,7 +18,11 @@ class TripDayEventService
 
     public function find(int $id): ?TripDayEvent
     {
-        return $this->repository->find($id);
+        $event = $this->repository->find($id);
+        if ($event) {
+            $event->load('place');
+        }
+        return $event;
     }
 
     public function store(array $data): TripDayEvent
@@ -38,7 +42,9 @@ class TripDayEventService
             }
 
             $data['created_by'] = Auth::id();
-            return $this->repository->create($data);
+            $event = $this->repository->create($data);
+            $event->load('place');
+            return $event;
         });
     }
 
@@ -60,7 +66,9 @@ class TripDayEventService
             }
 
             $data['updated_by'] = Auth::id();
-            return $this->repository->update($tripDayEvent, $data);
+            $event = $this->repository->update($tripDayEvent, $data);
+            $event->load('place');
+            return $event;
         });
     }
 
@@ -71,7 +79,7 @@ class TripDayEventService
 
     public function listByTripDayCity(int $tripId, int $dayId, int $cityId)
     {
-        return $this->repository->where('trip_day_city_id', $cityId)->get();
+        return $this->repository->where('trip_day_city_id', $cityId)->with('place')->get();
     }
 
 }

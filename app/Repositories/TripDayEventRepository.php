@@ -3,9 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\TripDayEvent;
+use App\Services\PlaceService;
 
 class TripDayEventRepository
 {
+    public function __construct(private PlaceService $placeService)
+    {
+    }
     public function baseQuery(){
         return TripDayEvent::query();
     }
@@ -22,11 +26,29 @@ class TripDayEventRepository
 
     public function create(array $data): TripDayEvent
     {
+        // Se os dados do place vêm no array, cria/busca o place e substitui por place_id
+        if (!empty($data['xid']) || !empty($data['place_data'])) {
+            $placeData = $data['place_data'] ?? $data;
+            $data['place_id'] = $this->placeService->createOrGetPlace($placeData);
+
+            // Remove campos que não pertencem ao evento
+            unset($data['place_data'], $data['name'], $data['type'], $data['lat'], $data['lon'], $data['xid'], $data['source_api'], $data['address'], $data['city'], $data['state'], $data['zip_code'], $data['country']);
+        }
+
         return TripDayEvent::create($data);
     }
 
     public function update(TripDayEvent $tripDayEvent, array $data): TripDayEvent
     {
+        // Se os dados do place vêm no array, cria/busca o place e substitui por place_id
+        if (!empty($data['xid']) || !empty($data['place_data'])) {
+            $placeData = $data['place_data'] ?? $data;
+            $data['place_id'] = $this->placeService->createOrGetPlace($placeData);
+
+            // Remove campos que não pertencem ao evento
+            unset($data['place_data'], $data['name'], $data['type'], $data['lat'], $data['lon'], $data['xid'], $data['source_api'], $data['address'], $data['city'], $data['state'], $data['zip_code'], $data['country']);
+        }
+
         $tripDayEvent->update($data);
         return $tripDayEvent;
     }

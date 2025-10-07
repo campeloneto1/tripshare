@@ -31,8 +31,7 @@ class VoteQuestionController extends Controller
     {
         try {
             $this->authorize('view', $voteQuestion);
-            $voteQuestion = $this->service->find($voteQuestion->id);
-            if (!$voteQuestion) return response()->json(['error' => 'Pergunta não encontrada'], 404);
+            $voteQuestion->load('options.votes');
             return VoteQuestionResource::make($voteQuestion);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

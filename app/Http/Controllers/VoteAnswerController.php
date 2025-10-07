@@ -6,6 +6,7 @@ use App\Http\Requests\StoreVoteAnswerRequest;
 use App\Http\Requests\UpdateVoteAnswerRequest;
 use App\Http\Resources\VoteAnswerResource;
 use App\Models\VoteAnswer;
+use App\Models\VoteQuestion;
 use App\Services\VoteAnswerService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -16,30 +17,36 @@ class VoteAnswerController extends Controller
 
     public function __construct(private VoteAnswerService $service) {}
 
-    public function index(Request $request)
+    public function index(VoteQuestion $vote, Request $request)
     {
         try {
             $this->authorize('viewAny', VoteAnswer::class);
-            $answers = $this->service->list($request->all());
+            $filters = array_merge($request->all(), ['vote_question_id' => $vote->id]);
+            $answers = $this->service->list($filters);
             return VoteAnswerResource::collection($answers);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function show(VoteAnswer $voteAnswer)
+    public function show(VoteQuestion $vote, VoteAnswer $answer)
     {
         try {
-            $this->authorize('view', $voteAnswer);
-            $voteAnswer = $this->service->find($voteAnswer->id);
-            if (!$voteAnswer) return response()->json(['error' => 'Resposta não encontrada'], 404);
-            return VoteAnswerResource::make($voteAnswer);
+            $this->authorize('view', $answer);
+
+            // Verifica se a resposta pertence à pergunta
+            if ($answer->vote_question_id != $vote->id) {
+                return response()->json(['error' => 'Resposta não pertence a esta votação'], 404);
+            }
+
+            $answer->load('option', 'user');
+            return VoteAnswerResource::make($answer);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function store(StoreVoteAnswerRequest $request)
+    public function store(StoreVoteAnswerRequest $request, VoteQuestion $vote)
     {
         try {
             $this->authorize('create', VoteAnswer::class);
@@ -54,12 +61,18 @@ class VoteAnswerController extends Controller
         }
     }
 
-    public function update(UpdateVoteAnswerRequest $request, VoteAnswer $voteAnswer)
+    public function update(UpdateVoteAnswerRequest $request, VoteQuestion $vote, VoteAnswer $answer)
     {
         try {
-            $this->authorize('update', $voteAnswer);
+            $this->authorize('update', $answer);
+
+            // Verifica se a resposta pertence à pergunta
+            if ($answer->vote_question_id != $vote->id) {
+                return response()->json(['error' => 'Resposta não pertence a esta votação'], 404);
+            }
+
             $data = $request->validated();
-            $voteAnswer = $this->service->update($voteAnswer, $data);
+            $voteAnswer = $this->service->update($answer, $data);
             return response()->json([
                 "message" => "Resposta atualizada com sucesso",
                 "data" => VoteAnswerResource::make($voteAnswer)
@@ -69,11 +82,17 @@ class VoteAnswerController extends Controller
         }
     }
 
-    public function destroy(VoteAnswer $voteAnswer)
+    public function destroy(VoteQuestion $vote, VoteAnswer $answer)
     {
         try {
-            $this->authorize('delete', $voteAnswer);
-            $this->service->delete($voteAnswer);
+            $this->authorize('delete', $answer);
+
+            // Verifica se a resposta pertence à pergunta
+            if ($answer->vote_question_id != $vote->id) {
+                return response()->json(['error' => 'Resposta não pertence a esta votação'], 404);
+            }
+
+            $this->service->delete($answer);
             return response()->json([
                 "message" => "Resposta excluída com sucesso",
                 "data" => null

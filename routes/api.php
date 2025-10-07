@@ -16,7 +16,9 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostCommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostLikeController;
-
+use App\Http\Controllers\VoteAnswerController;
+use App\Http\Controllers\VoteOptionController;
+use App\Http\Controllers\VoteQuestionController;
 
 // Login com throttle agressivo (5 tentativas por minuto)
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -42,6 +44,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
         'trips.users' => TripUserController::class,
         'users' => UserController::class,
         'users.follows' => UserFollowController::class,
+        'votes' => VoteQuestionController::class,
+        'votes.options' => VoteOptionController::class,
+        'votes.answers' => VoteAnswerController::class,
     ]);
 
     Route::post('roles/{role}/permissions', [RoleController::class, 'permissions']);

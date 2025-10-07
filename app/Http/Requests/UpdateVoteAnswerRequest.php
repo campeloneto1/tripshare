@@ -16,7 +16,7 @@ class UpdateVoteAnswerRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'vote_option_id' => 'sometimes|required|integer|exists:vote_options,id',
+            'vote_option_id' => 'sometimes|required|integer|exists:votes_options,id',
         ];
     }
 

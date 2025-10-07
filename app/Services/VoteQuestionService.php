@@ -27,7 +27,7 @@ class VoteQuestionService
             // Cria a pergunta de votação
             $voteQuestion = $this->repository->create($data);
 
-             ComputeVoteWinner::dispatch($voteQuestion)->delay($voteQuestion->ends_at);
+             ComputeVoteWinner::dispatch($voteQuestion)->delay($voteQuestion->end_at);
 
             return $voteQuestion;
         });

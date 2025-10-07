@@ -16,6 +16,10 @@ class VoteAnswerRepository
     {
         $query = $this->baseQuery()->latest();
 
+        if (!empty($filters['vote_question_id'])) {
+            $query->where('vote_question_id', $filters['vote_question_id']);
+        }
+
         if (!empty($filters['vote_option_id'])) {
             $query->where('vote_option_id', $filters['vote_option_id']);
         }

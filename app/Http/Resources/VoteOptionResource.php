@@ -18,7 +18,7 @@ class VoteOptionResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'json_data' => $this->json_data,
-            'votes_count' => $this->votes()->count(),
+            'votes_count' => $this->whenCounted('votes') ?? $this->votes()->count(),
             'votes' => VoteAnswerResource::collection($this->whenLoaded('votes')),
         ];
     }

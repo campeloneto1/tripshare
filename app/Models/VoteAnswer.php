@@ -14,9 +14,16 @@ class VoteAnswer extends Model
     protected $table = 'votes_answers';
 
     protected $fillable = [
+        'vote_question_id',
         'vote_option_id',
         'user_id',
     ];
+
+    // Relação com a pergunta
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(VoteQuestion::class, 'vote_question_id');
+    }
 
     // Relação com a opção votada
     public function option(): BelongsTo

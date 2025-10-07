@@ -2,12 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Models\TripDay;
 use App\Models\TripDayCity;
 use App\Models\TripDayEvent;
 use App\Models\User;
 use App\Models\VoteAnswer;
 use App\Models\VoteQuestion;
 use App\Notifications\VoteEndedNotification;
+use App\Repositories\TripDayEventRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -60,12 +62,11 @@ class ComputeVoteWinner implements ShouldQueue
             return;
         }
 
-        $data = $winningOption->json_data ?? [];
-
         // Cria registro no modelo correto
         switch ($this->question->type) {
             case 'city':
                 // votable é TripDay
+                $data = $winningOption->json_data ?? [];
                 TripDayCity::create(array_merge([
                     'trip_day_id' => $this->question->votable_id,
                     'name' => $winningOption->title,
@@ -74,10 +75,23 @@ class ComputeVoteWinner implements ShouldQueue
 
             case 'event':
                 // votable é TripDayCity
-                TripDayEvent::create(array_merge([
-                    'trip_day_city_id' => $this->question->votable_id,
-                    'name' => $winningOption->title,
-                ], $data));
+                // Se tem place_id, usa ele diretamente
+                if ($winningOption->place_id) {
+                    $eventRepository = app(TripDayEventRepository::class);
+                    $eventRepository->create([
+                        'trip_day_city_id' => $this->question->votable_id,
+                        'place_id' => $winningOption->place_id,
+                    ]);
+                } else {
+                    // Fallback: se não tem place_id mas tem json_data com xid
+                    $data = $winningOption->json_data ?? [];
+                    if (!empty($data['xid'])) {
+                        $eventRepository = app(TripDayEventRepository::class);
+                        $eventRepository->create(array_merge([
+                            'trip_day_city_id' => $this->question->votable_id,
+                        ], $data));
+                    }
+                }
                 break;
         }
 

@@ -16,6 +16,7 @@ class VoteOption extends Model
 
     protected $fillable = [
         'vote_question_id',
+        'place_id',
         'title',
         'json_data',
     ];
@@ -28,6 +29,12 @@ class VoteOption extends Model
     public function question(): BelongsTo
     {
         return $this->belongsTo(VoteQuestion::class, 'vote_question_id');
+    }
+
+    // Relação com o place (para votos de eventos)
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class, 'place_id');
     }
 
     // Relação com os votos

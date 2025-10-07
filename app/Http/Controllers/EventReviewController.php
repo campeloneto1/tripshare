@@ -42,8 +42,9 @@ class EventReviewController extends Controller
     public function store(StoreEventReviewRequest $request)
     {
         try {
-            $this->authorize('create', EventReview::class);
-            $eventReview = $this->service->store($request->validated());
+            $data = $request->validated();
+            $this->authorize('create', [EventReview::class, $data['trip_day_event_id']]);
+            $eventReview = $this->service->store($data);
             return response()->json([
                 "message" => "Review cadastrada com sucesso",
                 "data" => EventReviewResource::make($eventReview)

@@ -27,9 +27,26 @@ class EventReviewPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, $tripDayEventId = null): bool
     {
-        return true;
+        // Precisa verificar se o usuário é participante da trip do evento
+        if (!$tripDayEventId) {
+            return false;
+        }
+
+        $event = \App\Models\TripDayEvent::find($tripDayEventId);
+        if (!$event) {
+            return false;
+        }
+
+        $trip = $event->city?->day?->trip;
+        if (!$trip) {
+            return false;
+        }
+
+        // Verifica se é owner ou participante (admin ou participant)
+        return $user->id === $trip->user_id
+            || $trip->users()->where('user_id', $user->id)->exists();
     }
 
     /**

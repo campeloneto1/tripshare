@@ -56,4 +56,68 @@ class PostCommentTest extends TestCase
 
         $this->assertEquals(5, PostComment::where('user_id', $user->id)->count());
     }
+
+    public function test_post_comment_can_be_updated(): void
+    {
+        $comment = PostComment::factory()->create([
+            'content' => 'Original comment',
+        ]);
+
+        $comment->update([
+            'content' => 'Updated comment',
+        ]);
+
+        $this->assertEquals('Updated comment', $comment->fresh()->content);
+    }
+
+    public function test_post_comment_content_can_be_edited(): void
+    {
+        $comment = PostComment::factory()->create([
+            'content' => 'First version',
+        ]);
+
+        $comment->update(['content' => 'Edited version']);
+
+        $this->assertDatabaseHas('posts_comments', [
+            'id' => $comment->id,
+            'content' => 'Edited version',
+        ]);
+    }
+
+    public function test_post_comment_can_be_deleted(): void
+    {
+        $comment = PostComment::factory()->create();
+        $commentId = $comment->id;
+
+        $comment->delete();
+
+        $this->assertDatabaseMissing('posts_comments', ['id' => $commentId]);
+    }
+
+    public function test_deleting_comment_decreases_post_comment_count(): void
+    {
+        $post = Post::factory()->create();
+
+        PostComment::factory()->count(3)->create(['post_id' => $post->id]);
+
+        $this->assertEquals(3, $post->comments()->count());
+
+        $firstComment = $post->comments()->first();
+        $firstComment->delete();
+
+        $this->assertEquals(2, $post->fresh()->comments()->count());
+    }
+
+    public function test_deleting_post_deletes_all_comments(): void
+    {
+        $post = Post::factory()->create();
+
+        $comment1 = PostComment::factory()->create(['post_id' => $post->id]);
+        $comment2 = PostComment::factory()->create(['post_id' => $post->id]);
+
+        $post->delete();
+
+        $this->assertDatabaseMissing('posts_comments', ['id' => $comment1->id]);
+        $this->assertDatabaseMissing('posts_comments', ['id' => $comment2->id]);
+    }
 }

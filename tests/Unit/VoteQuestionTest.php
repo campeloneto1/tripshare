@@ -125,4 +125,57 @@ class VoteQuestionTest extends TestCase
 
         $this->assertNull($question->closed_at);
     }
+
+    public function test_vote_question_can_be_updated(): void
+    {
+        $question = VoteQuestion::factory()->create([
+            'title' => 'Original Title',
+            'is_closed' => false,
+        ]);
+
+        $question->update([
+            'title' => 'Updated Title',
+        ]);
+
+        $this->assertEquals('Updated Title', $question->fresh()->title);
+    }
+
+    public function test_vote_question_can_be_closed_via_update(): void
+    {
+        $question = VoteQuestion::factory()->create([
+            'is_closed' => false,
+            'closed_at' => null,
+        ]);
+
+        $question->update([
+            'is_closed' => true,
+            'closed_at' => now(),
+        ]);
+
+        $this->assertTrue($question->fresh()->is_closed);
+        $this->assertNotNull($question->fresh()->closed_at);
+    }
+
+    public function test_vote_question_can_be_deleted(): void
+    {
+        $question = VoteQuestion::factory()->create();
+        $questionId = $question->id;
+
+        $question->delete();
+
+        $this->assertDatabaseMissing('votes_questions', ['id' => $questionId]);
+    }
+
+    public function test_deleting_vote_question_deletes_options(): void
+    {
+        $question = VoteQuestion::factory()->create();
+
+        $option1 = VoteOption::factory()->create(['vote_question_id' => $question->id]);
+        $option2 = VoteOption::factory()->create(['vote_question_id' => $question->id]);
+
+        $question->delete();
+
+        // Verifica se as opções foram deletadas (se houver cascade)
+        $this->assertEquals(0, VoteOption::where('vote_question_id', $question->id)->count());
+    }
 }

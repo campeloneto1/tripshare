@@ -21,10 +21,38 @@ class VoteQuestionPolicy
         return $trip && ($user->id === $trip->user_id || $user->hasPermission('administrator'));
     }
 
-    public function create(User $user): bool
+    public function create(User $user, $votableType = null, $votableId = null): bool
     {
-        // Pode criar se for admin ou participante de trip
-        return true;
+        // Precisa receber o votable para verificar se é owner ou admin da trip
+        // Se não receber, nega por segurança
+        if (!$votableType || !$votableId) {
+            return false;
+        }
+
+        $trip = null;
+
+        // Se votable é TripDay
+        if ($votableType === \App\Models\TripDay::class) {
+            $tripDay = \App\Models\TripDay::find($votableId);
+            $trip = $tripDay?->trip;
+        }
+
+        // Se votable é TripDayCity
+        if ($votableType === \App\Models\TripDayCity::class) {
+            $tripDayCity = \App\Models\TripDayCity::find($votableId);
+            $trip = $tripDayCity?->tripDay?->trip;
+        }
+
+        if (!$trip) {
+            return false;
+        }
+
+        // Verifica se é owner ou admin da trip
+        return $user->id === $trip->user_id
+            || $trip->users()
+                ->where('user_id', $user->id)
+                ->where('role', 'admin')
+                ->exists();
     }
 
     public function update(User $user, VoteQuestion $voteQuestion): bool

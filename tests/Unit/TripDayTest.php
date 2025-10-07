@@ -80,4 +80,66 @@ class TripDayTest extends TestCase
         // Cache do trip deve ter sido limpo
         $this->assertNotEquals($summary, $day->trip->fresh()->summary);
     }
+
+    public function test_trip_day_can_be_updated(): void
+    {
+        $day = TripDay::factory()->create([
+            'date' => '2025-06-01',
+        ]);
+
+        $day->update([
+            'date' => '2025-06-02',
+        ]);
+
+        $this->assertEquals('2025-06-02', $day->fresh()->date->format('Y-m-d'));
+    }
+
+    public function test_trip_day_date_can_be_changed(): void
+    {
+        $day = TripDay::factory()->create([
+            'date' => '2025-01-15',
+        ]);
+
+        $day->update(['date' => '2025-01-20']);
+
+        $this->assertDatabaseHas('trips_days', [
+            'id' => $day->id,
+            'date' => '2025-01-20',
+        ]);
+    }
+
+    public function test_trip_day_can_be_deleted(): void
+    {
+        $day = TripDay::factory()->create();
+        $dayId = $day->id;
+
+        $day->delete();
+
+        $this->assertDatabaseMissing('trips_days', ['id' => $dayId]);
+    }
+
+    public function test_deleting_trip_day_deletes_cities(): void
+    {
+        $day = TripDay::factory()->create();
+
+        $city1 = TripDayCity::factory()->create(['trip_day_id' => $day->id]);
+        $city2 = TripDayCity::factory()->create(['trip_day_id' => $day->id]);
+
+        $day->delete();
+
+        $this->assertEquals(0, TripDayCity::where('trip_day_id', $day->id)->count());
+    }
+
+    public function test_deleting_trip_deletes_all_trip_days(): void
+    {
+        $trip = Trip::factory()->create();
+
+        $day1 = TripDay::factory()->create(['trip_id' => $trip->id]);
+        $day2 = TripDay::factory()->create(['trip_id' => $trip->id]);
+
+        $trip->delete();
+
+        $this->assertDatabaseMissing('trips_days', ['id' => $day1->id]);
+        $this->assertDatabaseMissing('trips_days', ['id' => $day2->id]);
+    }
 }

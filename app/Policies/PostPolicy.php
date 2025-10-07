@@ -21,17 +21,36 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        // Pode ver se: é público, é autor, ou é membro da trip
-        if (!$post->trip_id) {
-            return true; // Post público
-        }
-
+        // É o autor - sempre pode ver
         if ($post->user_id === $user->id) {
-            return true; // É o autor
+            return true;
         }
 
-        // Verifica se é membro da trip (se houver relação)
-        return $post->trip && $post->trip->users()->where('user_id', $user->id)->exists();
+        // Carrega o autor do post
+        $author = $post->user;
+
+        // Verifica privacidade do autor: se o autor é privado, precisa estar seguindo
+        if ($author && !$author->is_public) {
+            // Verifica se está seguindo o autor (status accepted)
+            $isFollowing = $author->followers()
+                ->where('follower_id', $user->id)
+                ->exists();
+
+            if (!$isFollowing) {
+                return false; // Autor é privado e não está seguindo
+            }
+        }
+
+        // Se o post está vinculado a uma trip, verifica acesso à trip
+        if ($post->trip_id) {
+            $trip = $post->trip;
+
+            // Se trip é pública ou é membro da trip, pode ver
+            return $trip && ($trip->is_public || $trip->users()->where('user_id', $user->id)->exists());
+        }
+
+        // Post público (sem trip_id) e autor público (ou já seguindo)
+        return true;
     }
 
     /**

@@ -114,4 +114,91 @@ class PostTest extends TestCase
         $this->assertEquals('trip', $tripPost->type);
         $this->assertEquals('shared', $sharedPost->type);
     }
+
+    public function test_post_can_be_updated(): void
+    {
+        $post = Post::factory()->create([
+            'content' => 'Original content',
+        ]);
+
+        $post->update([
+            'content' => 'Updated content',
+        ]);
+
+        $this->assertEquals('Updated content', $post->fresh()->content);
+    }
+
+    public function test_post_content_can_be_updated(): void
+    {
+        $post = Post::factory()->create([
+            'content' => 'First version',
+        ]);
+
+        $post->update(['content' => 'Second version']);
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'content' => 'Second version',
+        ]);
+    }
+
+    public function test_post_photos_can_be_updated(): void
+    {
+        $post = Post::factory()->create([
+            'photos' => json_encode(['photo1.jpg']),
+        ]);
+
+        $post->update([
+            'photos' => json_encode(['photo1.jpg', 'photo2.jpg', 'photo3.jpg']),
+        ]);
+
+        $photos = json_decode($post->fresh()->photos, true);
+        $this->assertCount(3, $photos);
+    }
+
+    public function test_post_can_be_deleted(): void
+    {
+        $post = Post::factory()->create();
+        $postId = $post->id;
+
+        $post->delete();
+
+        $this->assertDatabaseMissing('posts', ['id' => $postId]);
+    }
+
+    public function test_deleting_post_deletes_comments(): void
+    {
+        $post = Post::factory()->create();
+
+        $comment1 = PostComment::factory()->create(['post_id' => $post->id]);
+        $comment2 = PostComment::factory()->create(['post_id' => $post->id]);
+
+        $post->delete();
+
+        $this->assertEquals(0, PostComment::where('post_id', $post->id)->count());
+    }
+
+    public function test_deleting_post_deletes_likes(): void
+    {
+        $post = Post::factory()->create();
+
+        PostLike::factory()->count(5)->create(['post_id' => $post->id]);
+
+        $this->assertEquals(5, $post->likes()->count());
+
+        $post->delete();
+
+        $this->assertEquals(0, PostLike::where('post_id', $post->id)->count());
+    }
+
+    public function test_deleting_shared_post_does_not_delete_original(): void
+    {
+        $originalPost = Post::factory()->create(['content' => 'Original']);
+        $sharedPost = Post::factory()->create(['shared_post_id' => $originalPost->id]);
+
+        $sharedPost->delete();
+
+        $this->assertDatabaseHas('posts', ['id' => $originalPost->id]);
+        $this->assertDatabaseMissing('posts', ['id' => $sharedPost->id]);
+    }
 }

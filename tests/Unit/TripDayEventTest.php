@@ -149,4 +149,136 @@ class TripDayEventTest extends TestCase
         $this->assertNull($event->price);
         $this->assertNull($event->currency);
     }
+
+    public function test_trip_day_event_can_be_updated(): void
+    {
+        $event = TripDayEvent::factory()->create([
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+            'notes' => 'Original notes',
+            'price' => 20.00,
+        ]);
+
+        $event->update([
+            'start_time' => '14:00',
+            'end_time' => '16:00',
+            'notes' => 'Updated notes',
+            'price' => 25.00,
+        ]);
+
+        $this->assertEquals('14:00', $event->fresh()->start_time);
+        $this->assertEquals('16:00', $event->fresh()->end_time);
+        $this->assertEquals('Updated notes', $event->fresh()->notes);
+        $this->assertEquals(25.00, $event->fresh()->price);
+    }
+
+    public function test_trip_day_event_times_can_be_updated(): void
+    {
+        $event = TripDayEvent::factory()->create([
+            'start_time' => '09:00',
+            'end_time' => '11:00',
+        ]);
+
+        $event->update([
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+        ]);
+
+        $this->assertDatabaseHas('trips_days_events', [
+            'id' => $event->id,
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+        ]);
+    }
+
+    public function test_trip_day_event_notes_can_be_updated(): void
+    {
+        $event = TripDayEvent::factory()->create([
+            'notes' => 'Bring camera',
+        ]);
+
+        $event->update(['notes' => 'Bring camera and umbrella']);
+
+        $this->assertEquals('Bring camera and umbrella', $event->fresh()->notes);
+    }
+
+    public function test_trip_day_event_price_can_be_updated(): void
+    {
+        $event = TripDayEvent::factory()->create([
+            'price' => 15.00,
+            'currency' => 'USD',
+        ]);
+
+        $event->update([
+            'price' => 20.00,
+            'currency' => 'EUR',
+        ]);
+
+        $this->assertEquals(20.00, $event->fresh()->price);
+        $this->assertEquals('EUR', $event->fresh()->currency);
+    }
+
+    public function test_trip_day_event_order_can_be_updated(): void
+    {
+        $event = TripDayEvent::factory()->create(['order' => 1]);
+
+        $event->update(['order' => 3]);
+
+        $this->assertEquals(3, $event->fresh()->order);
+    }
+
+    public function test_trip_day_event_can_be_deleted(): void
+    {
+        $event = TripDayEvent::factory()->create();
+        $eventId = $event->id;
+
+        $event->delete();
+
+        $this->assertDatabaseMissing('trips_days_events', ['id' => $eventId]);
+    }
+
+    public function test_deleting_trip_day_event_deletes_reviews(): void
+    {
+        $event = TripDayEvent::factory()->create();
+
+        $review1 = EventReview::factory()->create([
+            'trip_day_event_id' => $event->id,
+            'place_id' => $event->place_id,
+        ]);
+        $review2 = EventReview::factory()->create([
+            'trip_day_event_id' => $event->id,
+            'place_id' => $event->place_id,
+        ]);
+
+        $event->delete();
+
+        $this->assertEquals(0, EventReview::where('trip_day_event_id', $event->id)->count());
+    }
+
+    public function test_deleting_trip_day_city_deletes_all_events(): void
+    {
+        $city = TripDayCity::factory()->create();
+
+        $event1 = TripDayEvent::factory()->create(['trip_day_city_id' => $city->id]);
+        $event2 = TripDayEvent::factory()->create(['trip_day_city_id' => $city->id]);
+
+        $city->delete();
+
+        $this->assertDatabaseMissing('trips_days_events', ['id' => $event1->id]);
+        $this->assertDatabaseMissing('trips_days_events', ['id' => $event2->id]);
+    }
+
+    public function test_deleting_place_does_not_delete_events(): void
+    {
+        $place = Place::factory()->create();
+        $event = TripDayEvent::factory()->create(['place_id' => $place->id]);
+
+        $eventId = $event->id;
+
+        $place->delete();
+
+        // Event should still exist but place_id might be null depending on migration
+        $existingEvent = TripDayEvent::withoutGlobalScopes()->find($eventId);
+        $this->assertNotNull($existingEvent);
+    }
 }

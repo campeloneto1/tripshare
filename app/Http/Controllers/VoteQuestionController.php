@@ -41,8 +41,8 @@ class VoteQuestionController extends Controller
     public function store(StoreVoteQuestionRequest $request)
     {
         try {
-            $this->authorize('create', VoteQuestion::class);
             $data = $request->validated();
+            $this->authorize('create', [VoteQuestion::class, $data['votable_type'], $data['votable_id']]);
             $voteQuestion = $this->service->store($data);
             return response()->json([
                 "message" => "Pergunta cadastrada com sucesso",

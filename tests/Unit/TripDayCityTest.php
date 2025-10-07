@@ -68,4 +68,80 @@ class TripDayCityTest extends TestCase
         $this->assertNull($city->country);
         $this->assertNotNull($city->name);
     }
+
+    public function test_trip_day_city_can_be_updated(): void
+    {
+        $city = TripDayCity::factory()->create([
+            'name' => 'Paris',
+            'country' => 'France',
+        ]);
+
+        $city->update([
+            'name' => 'Lyon',
+            'country' => 'France',
+        ]);
+
+        $this->assertEquals('Lyon', $city->fresh()->name);
+    }
+
+    public function test_trip_day_city_name_can_be_changed(): void
+    {
+        $city = TripDayCity::factory()->create([
+            'name' => 'Original City',
+        ]);
+
+        $city->update(['name' => 'Updated City']);
+
+        $this->assertDatabaseHas('trips_days_cities', [
+            'id' => $city->id,
+            'name' => 'Updated City',
+        ]);
+    }
+
+    public function test_trip_day_city_country_can_be_updated(): void
+    {
+        $city = TripDayCity::factory()->create([
+            'name' => 'Barcelona',
+            'country' => 'Spain',
+        ]);
+
+        $city->update(['country' => 'España']);
+
+        $this->assertEquals('España', $city->fresh()->country);
+    }
+
+    public function test_trip_day_city_can_be_deleted(): void
+    {
+        $city = TripDayCity::factory()->create();
+        $cityId = $city->id;
+
+        $city->delete();
+
+        $this->assertDatabaseMissing('trips_days_cities', ['id' => $cityId]);
+    }
+
+    public function test_deleting_trip_day_city_deletes_events(): void
+    {
+        $city = TripDayCity::factory()->create();
+
+        $event1 = TripDayEvent::factory()->create(['trip_day_city_id' => $city->id]);
+        $event2 = TripDayEvent::factory()->create(['trip_day_city_id' => $city->id]);
+
+        $city->delete();
+
+        $this->assertEquals(0, TripDayEvent::where('trip_day_city_id', $city->id)->count());
+    }
+
+    public function test_deleting_trip_day_deletes_all_cities(): void
+    {
+        $tripDay = TripDay::factory()->create();
+
+        $city1 = TripDayCity::factory()->create(['trip_day_id' => $tripDay->id]);
+        $city2 = TripDayCity::factory()->create(['trip_day_id' => $tripDay->id]);
+
+        $tripDay->delete();
+
+        $this->assertDatabaseMissing('trips_days_cities', ['id' => $city1->id]);
+        $this->assertDatabaseMissing('trips_days_cities', ['id' => $city2->id]);
+    }
 }

@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
+    public function __construct(private UserRepository $repository) {}
+
     /**
      * Autenticar usuário e gerar token
      */
@@ -33,5 +36,12 @@ class AuthService
     {
         $user->tokens()->delete();
         return true;
+    }
+
+    public function register($data){
+        $data['password'] = Hash::make($data['password']);
+        $data['role_id'] = 2;
+        $data['username'] = explode('@', $data['email'])[0];
+        return $this->repository->create($data);
     }
 }

@@ -82,6 +82,13 @@ class UserRepository
         return $user->forceDelete();
     }
 
+    public function resetPassword(User $user, string $newPassword): User
+    {
+        $user->password = $newPassword;
+        $user->save();
+        return $user;
+    }
+
 
     public function filterSearch(Builder $query, string $search)
     {

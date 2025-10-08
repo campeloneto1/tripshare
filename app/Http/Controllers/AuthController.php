@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterUserRequest;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Resources\UserResource;
@@ -10,7 +11,9 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function __construct(private AuthService $authService) {}
+    public function __construct(
+        private AuthService $authService,
+        ) {}
 
     /**
      * Login
@@ -50,5 +53,22 @@ class AuthController extends Controller
 
     public function user(){
         return UserResource::make(Auth::user());
+    }
+
+    public function register(RegisterUserRequest $request)
+    {
+        try {
+            $data = $request->validated();
+
+            $user = $this->authService->register($data);
+            return response()->json([
+                "message" => "Usuário registrado com sucesso",
+                "data" => UserResource::make($user)
+            ], 201);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -63,4 +63,9 @@ class UserPolicy
     {
         return $user->hasPermission('force_delete_usuarios');
     }
+
+    public function resetPassword(User $user, User $model): bool
+    {
+        return $user->hasPermission('reset_password_usuarios') || $user->id === $model->id;
+    }
 }

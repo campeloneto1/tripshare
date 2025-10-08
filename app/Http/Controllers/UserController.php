@@ -139,4 +139,21 @@ class UserController extends Controller
         }
     }
 
+    public function resetPassword(Request $request, User $user)
+    {
+        try {
+            $this->authorize('resetPassword',$user);
+            $data = $request->validate([
+                'new_password' => 'required|string|min:8',
+            ]);
+            $this->service->resetPassword($user, $data['new_password']);
+            return response()->json([
+                "message" => "Senha resetada com sucesso",
+                "data" => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 }

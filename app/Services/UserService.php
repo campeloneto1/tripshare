@@ -101,4 +101,10 @@ class UserService
         return DB::transaction(fn() => $this->repository->forceDelete($user));
     }
 
+    public function resetPassword(User $user, string $newPassword): User
+    {
+        return DB::transaction(fn() => $this->repository->resetPassword($user, $newPassword));
+
+    }
+
 }

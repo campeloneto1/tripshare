@@ -23,6 +23,7 @@ use App\Http\Controllers\VoteQuestionController;
 
 // Login com throttle agressivo (5 tentativas por minuto)
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 
 // Grupo de rotas protegidas com rate limiting (60 requisições por minuto)
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(function () {
@@ -69,4 +70,18 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
         Route::get('nearby', [PlaceController::class, 'nearby']);
         Route::get('{id}', [PlaceController::class, 'details']);
      });
+
+     Route::prefix('users')->group(function(){
+        Route::post('{user}/reset-password', [UserController::class, 'resetPassword']);
+        Route::get('trashed', [UserController::class, 'indexAll']);
+        Route::get('{id}/with-trashed', [UserController::class, 'showWithTrashed']);
+        Route::post('{id}/restore', [UserController::class, 'restore']);
+        Route::delete('{id}/force', [UserController::class, 'forceDelete']);
+     });
+
+    Route::get('health', function() {
+        return response()->json(['status' => 'OK'], 200);
+    });
+
+   
 });

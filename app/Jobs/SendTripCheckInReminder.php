@@ -10,21 +10,22 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Notification;
 
 class SendTripCheckInReminder implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Trip $trip;
-    protected string $reminderType; // 'before_start' ou 'before_end'
+    protected ?User $user; // Usuário específico ou null para buscar todos com avião
+    protected string $reminderType; // 'before_transport' ou 'before_end'
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Trip $trip, string $reminderType)
+    public function __construct(Trip $trip, ?User $user, string $reminderType)
     {
         $this->trip = $trip;
+        $this->user = $user;
         $this->reminderType = $reminderType;
         $this->onQueue('notifications');
     }
@@ -34,33 +35,33 @@ class SendTripCheckInReminder implements ShouldQueue
      */
     public function handle(): void
     {
-        // Busca todos participantes da trip
-        $participants = $this->getTripParticipants();
-
-        if ($participants->isEmpty()) {
+        // Se foi passado um usuário específico, envia só para ele
+        if ($this->user) {
+            $this->user->notify(
+                new TripCheckInReminderNotification($this->trip, $this->reminderType)
+            );
             return;
         }
 
-        // Envia notificação
-        Notification::send(
-            $participants,
-            new TripCheckInReminderNotification($this->trip, $this->reminderType)
-        );
-    }
+        // Caso contrário, busca participantes com avião (para o lembrete de fim de viagem)
+        if ($this->reminderType === 'before_end') {
+            $participants = $this->getTripParticipantsWithPlane();
 
-    private function getTripParticipants()
-    {
-        $participants = User::whereHas('trips', function ($query) {
-            $query->where('trips.id', $this->trip->id);
-        })->get();
-
-        // Adiciona criador da trip se não estiver nos participantes
-        if (!$participants->contains('id', $this->trip->user_id)) {
-            $tripOwner = User::find($this->trip->user_id);
-            if ($tripOwner) {
-                $participants->push($tripOwner);
+            foreach ($participants as $participant) {
+                $participant->notify(
+                    new TripCheckInReminderNotification($this->trip, $this->reminderType)
+                );
             }
         }
+    }
+
+    private function getTripParticipantsWithPlane()
+    {
+        // Busca participantes que vão de avião
+        $participants = User::whereHas('trips', function ($query) {
+            $query->where('trips.id', $this->trip->id)
+                  ->where('trips_users.transport_type', 'plane');
+        })->get();
 
         return $participants;
     }

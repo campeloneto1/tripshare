@@ -22,6 +22,8 @@ class StoreTripUserRequest extends BaseRequest
         return [
             'user_id' => 'required|exists:users,id',
             'role' => 'required|in:admin,participant',
+            'transport_type' => 'nullable|in:car,plane,bus,train,other',
+            'transport_datetime' => 'nullable|date',
         ];
     }
 
@@ -32,6 +34,8 @@ class StoreTripUserRequest extends BaseRequest
             'user_id.exists' => 'O usuário informado não existe.',
             'role.required' => 'O papel do usuário é obrigatório.',
             'role.in' => 'O papel do usuário deve ser admin ou participant.',
+            'transport_type.in' => 'O tipo de transporte deve ser car, plane, bus, train ou other.',
+            'transport_datetime.date' => 'A data e hora do transporte deve ser uma data válida.',
         ];
     }
 }

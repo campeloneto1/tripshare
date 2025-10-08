@@ -14,7 +14,7 @@ class TripCheckInReminderNotification extends Notification implements ShouldQueu
 
     public function __construct(
         public Trip $trip,
-        public string $reminderType // 'before_start' ou 'before_end'
+        public string $reminderType // 'before_transport' ou 'before_end'
     ) {
         $this->onQueue('notifications');
     }
@@ -26,21 +26,29 @@ class TripCheckInReminderNotification extends Notification implements ShouldQueu
 
     public function toArray(object $notifiable): array
     {
-        $isCheckIn = $this->reminderType === 'before_start';
-        $date = $isCheckIn ? $this->trip->start_date : $this->trip->end_date;
-        $formattedDate = Carbon::parse($date)->format('d/m/Y');
-
-        $message = $isCheckIn
-            ? "Lembrete: Fazer check-in do voo para a viagem '{$this->trip->name}' (início em {$formattedDate})"
-            : "Lembrete: Fazer check-in do voo de volta da viagem '{$this->trip->name}' (retorno em {$formattedDate})";
+        $message = match($this->reminderType) {
+            'before_transport' => $this->getTransportCheckInMessage(),
+            'before_end' => $this->getReturnCheckInMessage(),
+            default => "Lembrete de check-in para a viagem '{$this->trip->name}'"
+        };
 
         return [
             'type' => 'trip_flight_checkin_reminder',
             'trip_id' => $this->trip->id,
             'trip_name' => $this->trip->name,
             'reminder_type' => $this->reminderType,
-            'date' => $date,
             'message' => $message
         ];
+    }
+
+    private function getTransportCheckInMessage(): string
+    {
+        return "Lembrete: Não esqueça de fazer o check-in do seu voo para a viagem '{$this->trip->name}'! Seu voo sai em 3 dias.";
+    }
+
+    private function getReturnCheckInMessage(): string
+    {
+        $endDate = Carbon::parse($this->trip->end_date)->format('d/m/Y');
+        return "Lembrete: Não esqueça de fazer o check-in do seu voo de volta da viagem '{$this->trip->name}'! (retorno em {$endDate})";
     }
 }

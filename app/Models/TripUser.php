@@ -17,6 +17,14 @@ class TripUser extends Model
         'trip_id',
         'user_id',
         'role',
+        'transport_type',
+        'transport_datetime',
+        'checkin_reminder_job_id',
+        'transport_reminder_job_id',
+    ];
+
+    protected $casts = [
+        'transport_datetime' => 'datetime',
     ];
 
     public function trip() {

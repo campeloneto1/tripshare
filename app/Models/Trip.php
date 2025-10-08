@@ -46,6 +46,10 @@ class Trip extends Model
                     ->withTimestamps();
     }
 
+    public function tripUsers() {
+        return $this->hasMany(TripUser::class);
+    }
+
     public function days()
     {
         return $this->hasMany(TripDay::class)->orderBy('date', 'asc');

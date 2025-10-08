@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name', 150);
             $table->string('username', 50)->unique();
             $table->string('phone', 15)->nullable();
-            $table->string('cpf', 11)->unique();
+            $table->string('cpf', 11)->unique()->nullable();
             $table->string('email')->unique();
             $table->boolean('is_public')->default(true);
             $table->timestamp('email_verified_at')->nullable();

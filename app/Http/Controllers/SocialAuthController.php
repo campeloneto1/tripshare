@@ -74,19 +74,32 @@ class SocialAuthController extends Controller
                 'name' => $socialUser->getName(),
                 'email' => $socialUser->getEmail(),
                 'username' => $this->generateUsername($socialUser->getEmail()),
-                'cpf' => '', // CPF pode ser solicitado depois
+                'cpf' => null, // CPF pode ser solicitado depois
                 'password' => null,
                 'email_verified_at' => now(),
             ]);
         }
 
-        // Vincula conta social ao usuário
-        $user->socialAccounts()->create([
-            'provider' => $provider,
-            'provider_id' => $socialUser->getId(),
-            'provider_token' => $socialUser->token,
-            'provider_refresh_token' => $socialUser->refreshToken,
-        ]);
+        // Verifica se o usuário já tem esta rede social vinculada
+        $existingLink = $user->socialAccounts()
+            ->where('provider', $provider)
+            ->first();
+
+        if ($existingLink) {
+            // Já vinculado, apenas atualiza tokens e faz login
+            $existingLink->update([
+                'provider_token' => $socialUser->token,
+                'provider_refresh_token' => $socialUser->refreshToken,
+            ]);
+        } else {
+            // Vincula conta social ao usuário
+            $user->socialAccounts()->create([
+                'provider' => $provider,
+                'provider_id' => $socialUser->getId(),
+                'provider_token' => $socialUser->token,
+                'provider_refresh_token' => $socialUser->refreshToken,
+            ]);
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

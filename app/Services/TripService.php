@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\ScheduleTripReminders;
 use Illuminate\Support\Facades\DB;
 use App\Models\Trip;
 use App\Repositories\TripDayRepository;
@@ -37,6 +38,9 @@ class TripService
 
             // Invalida cache do usuário
             $this->repository->clearUserTripsCache(Auth::id());
+
+            // Agenda lembretes da viagem
+            ScheduleTripReminders::dispatch($return);
 
             return $return;
         });

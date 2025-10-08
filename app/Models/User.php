@@ -156,7 +156,8 @@ class User extends Authenticatable
             'following' => $this->following_count ?? $this->following()->count(),
             'followers' => $this->followers_count ?? $this->followers()->count(),
             'trips' => $this->trips_count ?? $this->trips()->count(),
-            'tripsParticipating' => $this->trips_participating_count ?? $this->tripsParticipating()->count()
+            'tripsParticipating' => $this->trips_participating_count ?? $this->tripsParticipating()->count(),
+            'unread_notifications' => $this->unreadNotifications()->count(),
         ];
     }
 

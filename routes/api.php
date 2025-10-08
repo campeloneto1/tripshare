@@ -20,10 +20,15 @@ use App\Http\Controllers\PostLikeController;
 use App\Http\Controllers\VoteAnswerController;
 use App\Http\Controllers\VoteOptionController;
 use App\Http\Controllers\VoteQuestionController;
+use App\Http\Controllers\SocialAuthController;
 
 // Login com throttle agressivo (5 tentativas por minuto)
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+
+// Social Authentication Routes
+Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:10,1');
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1');
 
 // Grupo de rotas protegidas com rate limiting (60 requisições por minuto)
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(function () {

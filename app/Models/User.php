@@ -212,4 +212,9 @@ class User extends Authenticatable
     {
         return $this->morphOne(Upload::class, 'uploadable');
     }
+
+    public function socialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
 }

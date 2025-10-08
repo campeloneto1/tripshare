@@ -144,7 +144,7 @@ class UserController extends Controller
         try {
             $this->authorize('resetPassword',$user);
             $data = $request->validate([
-                'new_password' => 'required|string|min:8',
+                'new_password' => 'required|string|confirmed|min:8',
             ]);
             $this->service->resetPassword($user, $data['new_password']);
             return response()->json([

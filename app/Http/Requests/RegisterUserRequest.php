@@ -18,7 +18,7 @@ class RegisterUserRequest extends BaseRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'cpf' => ['required', 'string', 'size:11', 'unique:users,cpf'],
         ];
     }
@@ -34,7 +34,7 @@ class RegisterUserRequest extends BaseRequest
             'email.unique' => 'Este e-mail já está em uso.',
 
             'password.required' => 'A senha é obrigatória.',
-            'password.min' => 'A senha deve ter no mínimo 6 caracteres.',
+            'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
             'password.confirmed' => 'A confirmação da senha não confere.',
 
             'cpf.required' => 'O CPF é obrigatório.',

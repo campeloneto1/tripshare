@@ -47,4 +47,24 @@ class Upload extends Model
     {
         return url("storage/{$this->path}");
     }
+
+    /**
+     * Boot method para limpar cache do uploadable quando upload é criado/deletado
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Upload $upload) {
+            // Limpa cache do Post se for upload de post
+            if ($upload->uploadable_type === 'App\\Models\\Post' && $upload->uploadable) {
+                $upload->uploadable->clearSummaryCache();
+            }
+        });
+
+        static::deleted(function (Upload $upload) {
+            // Limpa cache do Post se for upload de post
+            if ($upload->uploadable_type === 'App\\Models\\Post' && $upload->uploadable) {
+                $upload->uploadable->clearSummaryCache();
+            }
+        });
+    }
 }

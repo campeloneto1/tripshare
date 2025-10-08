@@ -23,6 +23,8 @@ class PostCommentResource extends JsonResource
             'replies' => PostCommentResource::collection($this->whenLoaded('replies')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
+            'summary' => $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

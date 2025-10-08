@@ -34,6 +34,8 @@ class TripDayEventResource extends JsonResource
                     'source_api' => $this->place->source_api,
                     'average_rating' => $this->place->averageRating(),
                     'reviews_count' => $this->place->reviewsCount(),
+                    'summary' => $this->place->summary,
+                    'flags' => $this->place->flags,
                 ];
             }),
 
@@ -48,6 +50,8 @@ class TripDayEventResource extends JsonResource
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'summary' => $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

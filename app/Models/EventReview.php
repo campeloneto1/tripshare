@@ -50,4 +50,60 @@ class EventReview extends Model
     {
         return $this->belongsTo(Place::class, 'place_id');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATTRIBUTES
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Retorna resumo da avaliação
+     */
+    public function getSummaryAttribute(): array
+    {
+        return [
+            'has_comment' => !is_null($this->comment) && trim($this->comment) !== '',
+            'rating_stars' => $this->rating,
+        ];
+    }
+
+    /**
+     * Retorna flags de estado da avaliação
+     */
+    public function getFlagsAttribute(): array
+    {
+        return [
+            'is_owner' => auth()->check() && $this->user_id === auth()->id(),
+            'has_high_rating' => $this->rating >= 4,
+            'has_low_rating' => $this->rating <= 2,
+            'has_comment' => !is_null($this->comment) && trim($this->comment) !== '',
+        ];
+    }
+
+    /**
+     * Boot method para limpar cache automaticamente
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (EventReview $review) {
+            // Limpa cache do evento
+            if ($review->event) {
+                $review->event->clearSummaryCache();
+            }
+            // Limpa cache do place
+            if ($review->place) {
+                $review->place->clearSummaryCache();
+            }
+        });
+
+        static::deleted(function (EventReview $review) {
+            if ($review->event) {
+                $review->event->clearSummaryCache();
+            }
+            if ($review->place) {
+                $review->place->clearSummaryCache();
+            }
+        });
+    }
 }

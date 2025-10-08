@@ -32,4 +32,18 @@ class PostLike extends Model
     {
         return $this->belongsTo(Post::class);
     }
+
+    /**
+     * Boot method para limpar cache do Post quando like é criado/deletado
+     */
+    protected static function booted(): void
+    {
+        static::created(function (PostLike $like) {
+            $like->post?->clearSummaryCache();
+        });
+
+        static::deleted(function (PostLike $like) {
+            $like->post?->clearSummaryCache();
+        });
+    }
 }

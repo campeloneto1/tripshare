@@ -29,4 +29,25 @@ class UserFollow extends Model
     {
         return $this->belongsTo(User::class, 'following_id');
     }
+
+    /**
+     * Boot method para limpar cache dos usuários quando follow é criado/alterado/deletado
+     */
+    protected static function booted(): void
+    {
+        static::created(function (UserFollow $follow) {
+            $follow->follower?->clearSummaryCache();
+            $follow->following?->clearSummaryCache();
+        });
+
+        static::updated(function (UserFollow $follow) {
+            $follow->follower?->clearSummaryCache();
+            $follow->following?->clearSummaryCache();
+        });
+
+        static::deleted(function (UserFollow $follow) {
+            $follow->follower?->clearSummaryCache();
+            $follow->following?->clearSummaryCache();
+        });
+    }
 }

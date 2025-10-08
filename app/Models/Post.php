@@ -188,12 +188,16 @@ class Post extends Model
      */
     public function getSummaryAttribute(): array
     {
-        return [
-            'likes_count' => $this->likes_count ?? $this->likes()->count(),
-            'comments_count' => $this->comments_count ?? $this->comments()->count(),
-            'shares_count' => $this->shared_by_count ?? $this->sharedBy()->count(),
-            //'uploads_count' => $this->uploads_count ?? $this->uploads()->count(),
-        ];
+        return \Illuminate\Support\Facades\Cache::remember(
+            "post_summary_{$this->id}",
+            now()->addMinutes(30),
+            fn() => [
+                'likes_count' => $this->likes()->count(),
+                'comments_count' => $this->comments()->count(),
+                'shares_count' => $this->sharedBy()->count(),
+                'uploads_count' => $this->uploads()->count(),
+            ]
+        );
     }
 
     /**
@@ -208,5 +212,38 @@ class Post extends Model
                 : false,
             'is_shared' => $this->is_shared,
         ];
+    }
+
+    /**
+     * Limpa o cache do summary
+     */
+    public function clearSummaryCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("post_summary_{$this->id}");
+    }
+
+    /**
+     * Boot method para limpar cache automaticamente
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Post $post) {
+            // Se for um post compartilhado, limpa o cache do post original
+            if ($post->shared_post_id) {
+                $post->sharedPost?->clearSummaryCache();
+            }
+        });
+
+        static::updated(function (Post $post) {
+            $post->clearSummaryCache();
+        });
+
+        static::deleted(function (Post $post) {
+            $post->clearSummaryCache();
+            // Se for um post compartilhado, limpa o cache do post original
+            if ($post->shared_post_id) {
+                $post->sharedPost?->clearSummaryCache();
+            }
+        });
     }
 }

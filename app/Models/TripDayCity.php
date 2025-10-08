@@ -51,24 +51,36 @@ class TripDayCity extends Model
      */
     public function getSummaryAttribute(): array
     {
-        return [
-            'total_events' => (int) $this->events->count(),
-            'total_value' => (float) $this->events->sum('price'),
-            'total_events_by_type' => [
-                'hotel' => $this->events->where('type', 'hotel')->count(),
-                'restaurant' => $this->events->where('type', 'restaurant')->count(),
-                'attraction' => $this->events->where('type', 'attraction')->count(),
-                'transport' => $this->events->where('type', 'transport')->count(),
-                'other' => $this->events->where('type', 'other')->count(),
-            ],
-            'total_value_by_type' => [
-                'hotel' => (float) $this->events->where('type', 'hotel')->sum('price'),
-                'restaurant' => (float) $this->events->where('type', 'restaurant')->sum('price'),
-                'attraction' => (float) $this->events->where('type', 'attraction')->sum('price'),
-                'transport' => (float) $this->events->where('type', 'transport')->sum('price'),
-                'other' => (float) $this->events->where('type', 'other')->sum('price'),
-            ],
-        ];
+        return \Illuminate\Support\Facades\Cache::remember(
+            "trip_day_city_summary_{$this->id}",
+            now()->addMinutes(30),
+            fn() => [
+                'total_events' => (int) $this->events->count(),
+                'total_value' => (float) $this->events->sum('price'),
+                'total_events_by_type' => [
+                    'hotel' => $this->events->where('type', 'hotel')->count(),
+                    'restaurant' => $this->events->where('type', 'restaurant')->count(),
+                    'attraction' => $this->events->where('type', 'attraction')->count(),
+                    'transport' => $this->events->where('type', 'transport')->count(),
+                    'other' => $this->events->where('type', 'other')->count(),
+                ],
+                'total_value_by_type' => [
+                    'hotel' => (float) $this->events->where('type', 'hotel')->sum('price'),
+                    'restaurant' => (float) $this->events->where('type', 'restaurant')->sum('price'),
+                    'attraction' => (float) $this->events->where('type', 'attraction')->sum('price'),
+                    'transport' => (float) $this->events->where('type', 'transport')->sum('price'),
+                    'other' => (float) $this->events->where('type', 'other')->sum('price'),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Limpa o cache do summary
+     */
+    public function clearSummaryCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("trip_day_city_summary_{$this->id}");
     }
 
     /**
@@ -77,10 +89,14 @@ class TripDayCity extends Model
     protected static function booted(): void
     {
         static::saved(function (TripDayCity $city) {
+            $city->clearSummaryCache();
+            $city->day->clearSummaryCache();
             $city->day->trip->clearSummaryCache();
         });
 
         static::deleted(function (TripDayCity $city) {
+            $city->clearSummaryCache();
+            $city->day->clearSummaryCache();
             $city->day->trip->clearSummaryCache();
         });
     }

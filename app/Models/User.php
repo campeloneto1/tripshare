@@ -152,13 +152,17 @@ class User extends Authenticatable
      */
     public function getSummaryAttribute(): array
     {
-        return [
-            'following' => $this->following_count ?? $this->following()->count(),
-            'followers' => $this->followers_count ?? $this->followers()->count(),
-            'trips' => $this->trips_count ?? $this->trips()->count(),
-            'tripsParticipating' => $this->trips_participating_count ?? $this->tripsParticipating()->count(),
-            'unread_notifications' => $this->unreadNotifications()->count(),
-        ];
+        return \Illuminate\Support\Facades\Cache::remember(
+            "user_summary_{$this->id}",
+            now()->addMinutes(30),
+            fn() => [
+                'following' => $this->following()->count(),
+                'followers' => $this->followers()->count(),
+                'trips' => $this->trips()->count(),
+                'tripsParticipating' => $this->tripsParticipating()->count(),
+                'unread_notifications' => $this->unreadNotifications()->count(),
+            ]
+        );
     }
 
     /**
@@ -176,6 +180,28 @@ class User extends Authenticatable
             'has_pending_follow_request' => !$isOwner && auth()->check() && auth()->user()->sentFollowRequests()->where('following_id', $this->id)->exists(),
             'has_received_follow_request' => !$isOwner && auth()->check() && $this->pendingFollowRequests()->where('follower_id', auth()->user()->id)->exists(),
         ];
+    }
+
+    /**
+     * Limpa o cache do summary
+     */
+    public function clearSummaryCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("user_summary_{$this->id}");
+    }
+
+    /**
+     * Boot method para limpar cache automaticamente
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (User $user) {
+            $user->clearSummaryCache();
+        });
+
+        static::deleted(function (User $user) {
+            $user->clearSummaryCache();
+        });
     }
 
     public function posts(){

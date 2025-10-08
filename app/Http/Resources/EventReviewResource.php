@@ -40,6 +40,9 @@ class EventReviewResource extends JsonResource
                     'xid' => $this->event->xid ?? null,
                 ];
             }),
+
+            'summary' => $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

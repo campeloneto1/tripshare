@@ -17,13 +17,15 @@ class TripUserResource extends JsonResource
         return [
             'id' => $this->id,
             'trip_id' => $this->trip_id,
-            'user_id', $this->user_id,
+            'user_id' => $this->user_id,
             'user' => UserResource::make($this->whenLoaded('user')),
             'role' => $this->role,
             'transport_type' => $this->transport_type,
             'transport_datetime' => $this->transport_datetime,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'summary' => $this->summary,
+            'flags' => $this->flags,
         ];
     }
 }

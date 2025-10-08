@@ -33,7 +33,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role_id' => Role::inRandomOrder()->first()?->id,
+            'role_id' => Role::inRandomOrder()->first()?->id ?? Role::factory()->create()->id,
             'is_public' => fake()->boolean(80),
         ];
     }

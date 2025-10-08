@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\TripDay;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,17 @@ class VoteQuestionFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = fake()->dateTimeBetween('now', '+30 days');
+        $endDate = fake()->dateTimeBetween($startDate, '+60 days');
+
         return [
-            //
+            'votable_type' => TripDay::class,
+            'votable_id' => TripDay::factory(),
+            'title' => fake()->sentence(),
+            'type' => fake()->randomElement(['city', 'event']),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'is_closed' => false,
         ];
     }
 }

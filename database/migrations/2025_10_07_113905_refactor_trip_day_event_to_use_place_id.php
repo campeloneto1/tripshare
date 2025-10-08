@@ -26,6 +26,11 @@ return new class extends Migration
 
         // Atualizar events_reviews para usar place_id
         Schema::table('events_reviews', function (Blueprint $table) {
+            // Dropar índice antes de dropar a coluna
+            $table->dropIndex(['xid']);
+        });
+
+        Schema::table('events_reviews', function (Blueprint $table) {
             // Adicionar place_id
             $table->foreignId('place_id')->nullable()->after('trip_day_event_id')->constrained('places')->onDelete('cascade');
 
@@ -59,12 +64,14 @@ return new class extends Migration
         });
 
         Schema::table('events_reviews', function (Blueprint $table) {
-            // Restaurar xid
-            $table->string('xid')->nullable()->after('trip_day_event_id');
-
             // Remover place_id
             $table->dropForeign(['place_id']);
             $table->dropColumn('place_id');
+        });
+
+        Schema::table('events_reviews', function (Blueprint $table) {
+            // Restaurar xid com índice
+            $table->string('xid')->nullable()->after('trip_day_event_id')->index();
         });
     }
 };

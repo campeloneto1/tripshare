@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('is_public')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->text('bio')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

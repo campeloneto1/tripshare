@@ -19,20 +19,22 @@ class SocialAuthController extends Controller
     {
         $this->validateProvider($provider);
 
-        return Socialite::driver($provider)->redirect();
+        return Socialite::driver($provider)->stateless()->redirect();
     }
 
     /**
-     * Callback do provider OAuth
+     * Callback do provider OAuth (primeiro login social)
      */
     public function callback(string $provider)
     {
         $this->validateProvider($provider);
 
         try {
-            $socialUser = Socialite::driver($provider)->user();
+            $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (\Exception $e) {
-            return redirect('/login')->withErrors(['error' => 'Falha na autenticação com ' . $provider]);
+            return response()->json([
+                'error' => 'Falha na autenticação com ' . $provider
+            ], 401);
         }
 
         // Verifica se já existe uma conta social vinculada
@@ -41,27 +43,39 @@ class SocialAuthController extends Controller
             ->first();
 
         if ($socialAccount) {
-            // Atualiza tokens
+            // Atualiza tokens e faz login
             $socialAccount->update([
                 'provider_token' => $socialUser->token,
                 'provider_refresh_token' => $socialUser->refreshToken,
             ]);
 
-            Auth::login($socialAccount->user);
-            return redirect('/dashboard');
+            $token = $socialAccount->user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'user' => $socialAccount->user,
+                'token' => $token,
+            ]);
         }
 
         // Verifica se já existe um usuário com este email
         $user = User::where('email', $socialUser->getEmail())->first();
 
+        if ($user && $user->password !== null) {
+            // Usuário já tem conta com senha - precisa confirmar senha para vincular
+            return response()->json([
+                'error' => 'Este email já está cadastrado. Por segurança, faça login com sua senha e vincule a conta social nas configurações.',
+                'requires_password' => true,
+            ], 409);
+        }
+
         if (!$user) {
-            // Cria novo usuário
+            // Cria novo usuário sem senha (login apenas via social)
             $user = User::create([
                 'name' => $socialUser->getName(),
                 'email' => $socialUser->getEmail(),
                 'username' => $this->generateUsername($socialUser->getEmail()),
                 'cpf' => '', // CPF pode ser solicitado depois
-                'password' => Hash::make(Str::random(32)), // Senha aleatória
+                'password' => null,
                 'email_verified_at' => now(),
             ]);
         }
@@ -74,8 +88,125 @@ class SocialAuthController extends Controller
             'provider_refresh_token' => $socialUser->refreshToken,
         ]);
 
-        Auth::login($user);
-        return redirect('/dashboard');
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
+
+    /**
+     * Vincula conta social a um usuário autenticado (requer senha)
+     */
+    public function linkAccount(Request $request, string $provider)
+    {
+        $this->validateProvider($provider);
+
+        $request->validate([
+            'password' => 'required|string',
+            'provider_token' => 'required|string', // Token retornado pelo provider no frontend
+        ]);
+
+        $user = $request->user();
+
+        // Verifica senha se o usuário tiver uma
+        if ($user->password && !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'error' => 'Senha incorreta.'
+            ], 401);
+        }
+
+        // Busca os dados do usuário social usando o token fornecido
+        try {
+            $socialUser = Socialite::driver($provider)->userFromToken($request->provider_token);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Token inválido ou expirado.'
+            ], 401);
+        }
+
+        // Verifica se já está vinculada
+        if ($user->socialAccounts()->where('provider', $provider)->exists()) {
+            return response()->json([
+                'error' => 'Conta ' . $provider . ' já está vinculada.'
+            ], 422);
+        }
+
+        // Verifica se esta conta social já está vinculada a outro usuário
+        $existingSocial = SocialAccount::where('provider', $provider)
+            ->where('provider_id', $socialUser->getId())
+            ->first();
+
+        if ($existingSocial) {
+            return response()->json([
+                'error' => 'Esta conta ' . $provider . ' já está vinculada a outro usuário.'
+            ], 422);
+        }
+
+        // Vincula conta social
+        $user->socialAccounts()->create([
+            'provider' => $provider,
+            'provider_id' => $socialUser->getId(),
+            'provider_token' => $socialUser->token,
+            'provider_refresh_token' => $socialUser->refreshToken,
+        ]);
+
+        return response()->json([
+            'message' => 'Conta ' . $provider . ' vinculada com sucesso.',
+            'social_accounts' => $user->socialAccounts,
+        ]);
+    }
+
+    /**
+     * Remove vinculação de conta social
+     */
+    public function unlinkAccount(Request $request, string $provider)
+    {
+        $this->validateProvider($provider);
+
+        $user = $request->user();
+
+        $socialAccount = $user->socialAccounts()->where('provider', $provider)->first();
+
+        if (!$socialAccount) {
+            return response()->json([
+                'error' => 'Conta ' . $provider . ' não está vinculada.'
+            ], 404);
+        }
+
+        // Verifica se tem senha antes de desvincular (segurança)
+        if (!$user->password && $user->socialAccounts()->count() === 1) {
+            return response()->json([
+                'error' => 'Você precisa definir uma senha antes de desvincular sua única conta social.'
+            ], 422);
+        }
+
+        $socialAccount->delete();
+
+        return response()->json([
+            'message' => 'Conta ' . $provider . ' desvinculada com sucesso.',
+        ]);
+    }
+
+    /**
+     * Define senha para usuário que usa apenas login social
+     */
+    public function setPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'message' => 'Senha definida com sucesso. Agora você pode fazer login com email e senha.',
+        ]);
     }
 
     /**

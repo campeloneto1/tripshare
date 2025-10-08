@@ -26,7 +26,7 @@ use App\Http\Controllers\SocialAuthController;
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 
-// Social Authentication Routes
+// Social Authentication Routes (public)
 Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->middleware('throttle:10,1');
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->middleware('throttle:10,1');
 
@@ -36,6 +36,11 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('v1')->group(functi
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('check', [AuthController::class, 'check']);
         Route::get('profile', [AuthController::class, 'user']);
+
+        // Social account management (requires authentication)
+        Route::post('social/{provider}/link', [SocialAuthController::class, 'linkAccount']);
+        Route::delete('social/{provider}/unlink', [SocialAuthController::class, 'unlinkAccount']);
+        Route::post('social/set-password', [SocialAuthController::class, 'setPassword']);
     });
 
     Route::apiResources([
